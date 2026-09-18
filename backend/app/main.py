@@ -2,9 +2,25 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.database import init_db
-from app.api.routes_projects import router as projects_router
-from app.api.routes_risks import router as risks_router
-from app.api.routes_simulation import router as simulation_router
+from app.config.settings import settings
+
+from app.api.routes_projects import (
+    router as projects_router,
+)
+
+from app.api.routes_risks import (
+    router as risks_router,
+)
+
+from app.api.routes_simulation import (
+    router as simulation_router,
+)
+
+from app.api.routes_graph import (
+    router as graph_router,
+)
+from app.api.routes_demo import router as demo_router
+from app.api.routes_investigation import router as investigation_router
 
 
 # ============================================================
@@ -13,7 +29,10 @@ from app.api.routes_simulation import router as simulation_router
 
 app = FastAPI(
     title="DEADLOCK API",
-    description="Agentic AI backend for discovering hidden software-project risks.",
+    description=(
+        "Agentic AI backend for discovering "
+        "hidden software-project risks."
+    ),
     version="0.1.0",
 )
 
@@ -22,12 +41,15 @@ app = FastAPI(
 # CORS
 # ============================================================
 
+allowed_origins = [
+    origin.strip()
+    for origin in settings.frontend_origins.split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,9 +60,24 @@ app.add_middleware(
 # API ROUTES
 # ============================================================
 
-app.include_router(projects_router)
-app.include_router(risks_router)
-app.include_router(simulation_router)
+app.include_router(
+    projects_router
+)
+
+app.include_router(
+    risks_router
+)
+
+app.include_router(
+    simulation_router
+)
+
+app.include_router(
+    graph_router
+)
+
+app.include_router(demo_router)
+app.include_router(investigation_router)
 
 
 # ============================================================

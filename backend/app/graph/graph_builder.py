@@ -13,17 +13,57 @@ def _get_id(item: dict[str, Any]) -> str | None:
     """
     Get the graph identifier.
 
-    GitHub milestones use their public number as the
-    graph identifier. Other entities normally use id.
+    Priority:
+    1. number
+    2. id
+    3. key
+    4. sha
     """
 
-    if "number" in item:
+    if "number" in item and item["number"] is not None:
         return str(item["number"])
 
-    if "id" in item:
+    if "id" in item and item["id"] is not None:
         return str(item["id"])
 
+    if "key" in item and item["key"] is not None:
+        return str(item["key"])
+
+    if "sha" in item and item["sha"] is not None:
+        return str(item["sha"])
+
     return None
+
+
+def _sanitize_data(data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Sanitize entity metadata dictionary to exclude sensitive credentials
+    and overly verbose nested dumps while preserving canonical fields.
+    """
+    if not isinstance(data, dict):
+        return {}
+
+    sensitive_keys = {
+        "token",
+        "access_token",
+        "github_token",
+        "secret",
+        "password",
+        "api_key",
+        "private_key",
+        "credentials",
+        "auth_header",
+    }
+
+    clean = {}
+    for k, v in data.items():
+        if str(k).lower() in sensitive_keys:
+            continue
+        if isinstance(v, (dict, list)) and len(str(v)) > 5000:
+            continue
+        clean[k] = v
+
+    return clean
 
 
 def _node_type(entity_type: str) -> str:
@@ -38,6 +78,7 @@ def _node_type(entity_type: str) -> str:
         "reviews": "review",
         "dependencies": "dependency",
         "deployments": "deployment",
+        "deadlines": "deadline",
     }
 
     return mapping.get(
@@ -71,6 +112,7 @@ def _add_entities(
             item.get("title")
             or item.get("name")
             or item.get("message")
+            or item.get("description")
             or entity_id
         )
 
@@ -78,19 +120,25 @@ def _add_entities(
             node_id,
             type=node_type,
             label=str(label),
-            data=item,
+            data=_sanitize_data(item),
         )
 
 
 def _find_node(
     graph: nx.DiGraph,
     entity_id: Any,
+    preferred_type: str | None = None,
 ) -> str | None:
     """
     Find a graph node using:
+    - exact graph node ID
     - id
     - number
+    - key
+    - sha
     - title
+
+    preferred_type is used when the reference is ambiguous.
     """
 
     if entity_id is None:
@@ -98,14 +146,38 @@ def _find_node(
 
     entity_id = str(entity_id)
 
+    # --------------------------------------------------------
+    # Direct graph-node lookup
+    # --------------------------------------------------------
+
+    if ":" in entity_id and graph.has_node(entity_id):
+        return entity_id
+
+    # --------------------------------------------------------
+    # Search graph data
+    # --------------------------------------------------------
+
     for node, data in graph.nodes(data=True):
 
+        if preferred_type:
+            if data.get("type") != preferred_type:
+                continue
+
         raw_data = data.get("data", {})
+
+        if not isinstance(raw_data, dict):
+            continue
 
         if str(raw_data.get("id", "")) == entity_id:
             return node
 
         if str(raw_data.get("number", "")) == entity_id:
+            return node
+
+        if str(raw_data.get("key", "")) == entity_id:
+            return node
+
+        if str(raw_data.get("sha", "")) == entity_id:
             return node
 
         if str(raw_data.get("title", "")) == entity_id:
@@ -117,12 +189,19 @@ def _find_node(
 def _extract_reference(
     reference: Any,
 ) -> Any:
-    """Extract an ID from a string, number, or object."""
+    """
+    Extract an ID from:
+    - string
+    - number
+    - object
+    """
 
     if isinstance(reference, dict):
         return (
             reference.get("id")
             or reference.get("number")
+            or reference.get("key")
+            or reference.get("sha")
             or reference.get("title")
         )
 
@@ -134,6 +213,7 @@ def _add_reference_edge(
     source_node: str,
     reference: Any,
     relation: str,
+    preferred_type: str | None = None,
 ) -> None:
     """Create an edge to a referenced entity."""
 
@@ -145,6 +225,7 @@ def _add_reference_edge(
     target_node = _find_node(
         graph,
         reference,
+        preferred_type=preferred_type,
     )
 
     if target_node is None:
@@ -154,7 +235,37 @@ def _add_reference_edge(
         source_node,
         target_node,
         relation=relation,
+        data={"relation": relation, "direct": True},
     )
+
+
+def validate_causal_path(
+    graph: nx.DiGraph,
+    path: list[str],
+) -> bool:
+    """
+    Validate whether a proposed causal chain of node IDs forms a valid
+    directed path in the graph. Supports bare IDs by resolving them.
+    """
+
+    if not path or not isinstance(path, list):
+        return False
+
+    resolved_path: list[str] = []
+    for item in path:
+        resolved = _find_node(graph, item)
+        if resolved is None or not graph.has_node(resolved):
+            return False
+        resolved_path.append(resolved)
+
+    for i in range(len(resolved_path) - 1):
+        u = resolved_path[i]
+        v = resolved_path[i + 1]
+        if not graph.has_edge(u, v):
+            return False
+
+    return True
+
 
 
 # ============================================================
@@ -165,25 +276,34 @@ def build_graph(
     project: Any,
 ) -> nx.DiGraph:
     """
-    Build the DEADLOCK project graph.
+    Build the complete DEADLOCK project graph.
 
     Supports:
-    - Existing Pydantic ProjectData models
+    - Pydantic ProjectData models
     - Raw seeded_project.json dictionaries
+    - Wrapped project_data dictionaries
 
-    Runtime input:
-        data/seeded_project.json
+    Graph entities:
+    - project
+    - developers
+    - issues
+    - pull requests
+    - commits
+    - milestones
+    - reviews
+    - dependencies
+    - deployments
+    - deadlines
 
-    The graph represents relationships between:
-    developers, issues, pull requests, commits,
-    milestones, reviews, dependencies and deployments.
+    The graph is intentionally relationship-rich so DEADLOCK
+    can trace multi-hop project failure chains.
     """
 
     graph = nx.DiGraph()
 
-    # --------------------------------------------------------
-    # Convert Pydantic model to dictionary
-    # --------------------------------------------------------
+    # ========================================================
+    # Convert input to dictionary
+    # ========================================================
 
     if hasattr(project, "model_dump"):
         data = project.model_dump()
@@ -196,9 +316,9 @@ def build_graph(
             "project must be a dictionary or Pydantic model"
         )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Support wrapped datasets
-    # --------------------------------------------------------
+    # ========================================================
 
     if isinstance(
         data.get("project_data"),
@@ -209,31 +329,37 @@ def build_graph(
     else:
         dataset = data
 
-    # --------------------------------------------------------
-    # Add project node
-    # --------------------------------------------------------
+    # ========================================================
+    # Project node
+    # ========================================================
 
     project_info = dataset.get("project")
 
     if isinstance(project_info, dict):
 
-        project_id = project_info.get("id")
+        project_id = (
+            project_info.get("id")
+            or project_info.get("key")
+            or project_info.get("name")
+        )
 
         if project_id:
 
             graph.add_node(
                 f"project:{project_id}",
                 type="project",
-                label=project_info.get(
-                    "name",
-                    str(project_id),
+                label=str(
+                    project_info.get(
+                        "name",
+                        project_id,
+                    )
                 ),
                 data=project_info,
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Entity collections
-    # --------------------------------------------------------
+    # ========================================================
 
     entity_types = [
         "developers",
@@ -244,11 +370,12 @@ def build_graph(
         "reviews",
         "dependencies",
         "deployments",
+        "deadlines",
     ]
 
-    # --------------------------------------------------------
-    # Add nodes
-    # --------------------------------------------------------
+    # ========================================================
+    # Add entity nodes
+    # ========================================================
 
     for entity_type in entity_types:
 
@@ -265,13 +392,17 @@ def build_graph(
                 items,
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Project → entities
-    # --------------------------------------------------------
+    # ========================================================
 
     if isinstance(project_info, dict):
 
-        project_id = project_info.get("id")
+        project_id = (
+            project_info.get("id")
+            or project_info.get("key")
+            or project_info.get("name")
+        )
 
         if project_id:
 
@@ -279,10 +410,15 @@ def build_graph(
 
             for entity_type in entity_types:
 
-                for item in dataset.get(
+                items = dataset.get(
                     entity_type,
                     [],
-                ):
+                )
+
+                if not isinstance(items, list):
+                    continue
+
+                for item in items:
 
                     if not isinstance(item, dict):
                         continue
@@ -308,33 +444,66 @@ def build_graph(
                             relation="contains",
                         )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Generic reference relationships
-    # --------------------------------------------------------
+    # ========================================================
 
     reference_fields = {
 
-        "assignee": "assigned_to",
+        "assignee": (
+            "assigned_to",
+            "developer",
+        ),
 
-        "assignee_id": "assigned_to",
+        "assignee_id": (
+            "assigned_to",
+            "developer",
+        ),
 
-        "developer_id": "assigned_to",
+        "developer_id": (
+            "assigned_to",
+            "developer",
+        ),
 
-        "developer": "assigned_to",
+        "developer": (
+            "assigned_to",
+            "developer",
+        ),
 
-        "author_id": "authored_by",
+        "author_id": (
+            "authored_by",
+            "developer",
+        ),
 
-        "author": "authored_by",
+        "author": (
+            "authored_by",
+            "developer",
+        ),
 
-        "user_id": "created_by",
+        "user_id": (
+            "created_by",
+            "developer",
+        ),
 
-        "issue_id": "references_issue",
+        "issue_id": (
+            "references_issue",
+            "issue",
+        ),
 
-        "pr_id": "references_pr",
+        "pr_id": (
+            "references_pr",
+            "pull_request",
+        ),
 
-        "pull_request_id": "references_pr",
+        "pull_request_id": (
+            "references_pr",
+            "pull_request",
+        ),
 
-        "milestone_id": "belongs_to_milestone",
+        "milestone_id": (
+            "belongs_to_milestone",
+            "milestone",
+        ),
     }
 
     for entity_type in entity_types:
@@ -368,21 +537,24 @@ def build_graph(
             if source_node not in graph:
                 continue
 
-            for field, relation in reference_fields.items():
+            for field, config in reference_fields.items():
 
                 if field not in item:
                     continue
+
+                relation, preferred_type = config
 
                 _add_reference_edge(
                     graph,
                     source_node,
                     item[field],
                     relation,
+                    preferred_type=preferred_type,
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Issue → Milestone
-    # --------------------------------------------------------
+    # ========================================================
 
     for issue in dataset.get(
         "issues",
@@ -415,6 +587,7 @@ def build_graph(
             milestone_node = _find_node(
                 graph,
                 milestone_ref,
+                preferred_type="milestone",
             )
 
             if milestone_node:
@@ -425,9 +598,9 @@ def build_graph(
                     relation="belongs_to_milestone",
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Explicit dependencies
-    # --------------------------------------------------------
+    # ========================================================
 
     for dependency in dataset.get(
         "dependencies",
@@ -459,12 +632,12 @@ def build_graph(
 
         source_node = _find_node(
             graph,
-            source,
+            _extract_reference(source),
         )
 
         target_node = _find_node(
             graph,
-            target,
+            _extract_reference(target),
         )
 
         if source_node and target_node:
@@ -475,9 +648,9 @@ def build_graph(
                 relation="depends_on",
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Pull Request → Issue
-    # --------------------------------------------------------
+    # ========================================================
 
     for pr in dataset.get(
         "pull_requests",
@@ -519,6 +692,7 @@ def build_graph(
             issue_node = _find_node(
                 graph,
                 issue_ref,
+                preferred_type="issue",
             )
 
             if issue_node:
@@ -529,9 +703,9 @@ def build_graph(
                     relation="resolves_issue",
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Commit → Pull Request
-    # --------------------------------------------------------
+    # ========================================================
 
     for commit in dataset.get(
         "commits",
@@ -566,6 +740,7 @@ def build_graph(
             pr_node = _find_node(
                 graph,
                 pr_ref,
+                preferred_type="pull_request",
             )
 
             if pr_node:
@@ -576,9 +751,9 @@ def build_graph(
                     relation="contributes_to",
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Review → Pull Request
-    # --------------------------------------------------------
+    # ========================================================
 
     for review in dataset.get(
         "reviews",
@@ -613,6 +788,7 @@ def build_graph(
             pr_node = _find_node(
                 graph,
                 pr_ref,
+                preferred_type="pull_request",
             )
 
             if pr_node:
@@ -623,9 +799,9 @@ def build_graph(
                     relation="reviews",
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Deployment → Pull Request
-    # --------------------------------------------------------
+    # ========================================================
 
     for deployment in dataset.get(
         "deployments",
@@ -671,6 +847,7 @@ def build_graph(
             pr_node = _find_node(
                 graph,
                 pr_ref,
+                preferred_type="pull_request",
             )
 
             if pr_node:
@@ -679,6 +856,202 @@ def build_graph(
                     deployment_node,
                     pr_node,
                     relation="deployed_from",
+                )
+
+    # ========================================================
+    # Deployment → Deadline
+    # ========================================================
+
+    for deployment in dataset.get(
+        "deployments",
+        [],
+    ):
+
+        if not isinstance(
+            deployment,
+            dict,
+        ):
+            continue
+
+        deployment_id = _get_id(
+            deployment
+        )
+
+        if deployment_id is None:
+            continue
+
+        deployment_node = (
+            f"deployment:{deployment_id}"
+        )
+
+        if deployment_node not in graph:
+            continue
+
+        # Support several possible dataset field names.
+        deadline_ref = (
+            deployment.get("deadline_id")
+            or deployment.get("deadline")
+            or deployment.get("deadline_ref")
+            or deployment.get("due_to")
+            or deployment.get("target_deadline")
+        )
+
+        if deadline_ref is None:
+            continue
+
+        deadline_ref = _extract_reference(
+            deadline_ref
+        )
+
+        deadline_node = _find_node(
+            graph,
+            deadline_ref,
+            preferred_type="deadline",
+        )
+
+        if deadline_node:
+
+            graph.add_edge(
+                deployment_node,
+                deadline_node,
+                relation="targets_deadline",
+            )
+
+    # ========================================================
+    # Deadline → Deployment / related entities
+    #
+    # Some seeded datasets define the relationship from the
+    # deadline side instead of the deployment side.
+    # ========================================================
+
+    for deadline in dataset.get(
+        "deadlines",
+        [],
+    ):
+
+        if not isinstance(
+            deadline,
+            dict,
+        ):
+            continue
+
+        deadline_id = _get_id(
+            deadline
+        )
+
+        if deadline_id is None:
+            continue
+
+        deadline_node = (
+            f"deadline:{deadline_id}"
+        )
+
+        if deadline_node not in graph:
+            continue
+
+        deployment_ref = (
+            deadline.get("deployment_id")
+            or deadline.get("deployment")
+            or deadline.get("deployment_ref")
+            or deadline.get("target_deployment")
+        )
+
+        if deployment_ref is None:
+            continue
+
+        deployment_ref = _extract_reference(
+            deployment_ref
+        )
+
+        deployment_node = _find_node(
+            graph,
+            deployment_ref,
+            preferred_type="deployment",
+        )
+
+        if deployment_node:
+
+            graph.add_edge(
+                deployment_node,
+                deadline_node,
+                relation="targets_deadline",
+            )
+
+    # ========================================================
+    # Deadline → Milestone / Issue
+    # ========================================================
+
+    for deadline in dataset.get(
+        "deadlines",
+        [],
+    ):
+
+        if not isinstance(
+            deadline,
+            dict,
+        ):
+            continue
+
+        deadline_id = _get_id(
+            deadline
+        )
+
+        if deadline_id is None:
+            continue
+
+        deadline_node = (
+            f"deadline:{deadline_id}"
+        )
+
+        if deadline_node not in graph:
+            continue
+
+        # Deadline may directly reference a milestone.
+        milestone_ref = (
+            deadline.get("milestone_id")
+            or deadline.get("milestone")
+        )
+
+        if milestone_ref is not None:
+
+            milestone_node = _find_node(
+                graph,
+                _extract_reference(
+                    milestone_ref
+                ),
+                preferred_type="milestone",
+            )
+
+            if milestone_node:
+
+                graph.add_edge(
+                    milestone_node,
+                    deadline_node,
+                    relation="has_deadline",
+                )
+
+        # Deadline may directly reference an issue.
+        issue_ref = (
+            deadline.get("issue_id")
+            or deadline.get("issue")
+        )
+
+        if issue_ref is not None:
+
+            issue_node = _find_node(
+                graph,
+                _extract_reference(
+                    issue_ref
+                ),
+                preferred_type="issue",
+            )
+
+            if issue_node:
+
+                graph.add_edge(
+                    issue_node,
+                    deadline_node,
+                    relation="has_deadline",
                 )
 
     return graph

@@ -5,12 +5,10 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.github_models import ProjectData
 from app.risk_engine.detector import detect_risks
 from app.agents.risk_agent import RiskAgent
 from app.agents.verifier_agent import VerifierAgent
 from app.agents.intervention_agent import InterventionAgent
-from app.database.repositories import load_project
 
 
 router = APIRouter(
@@ -18,28 +16,57 @@ router = APIRouter(
     tags=["risks"],
 )
 
+
 risk_agent = RiskAgent()
 verifier = VerifierAgent()
 intervention = InterventionAgent()
 
 
-# DEADLOCK production/demo dataset.
-# IMPORTANT:
-# expected_results.json is NEVER loaded here.
+# ============================================================
+# SEEDED DEADLOCK DEMO DATASET
+# ============================================================
+#
+# Actual location:
+#
+# DEADLOCK/
+# └── backend/
+#     ├── app/
+#     │   └── api/
+#     │       └── routes_risks.py
+#     └── data/
+#         └── seeded_project.json
+#
+# parents[2] resolves to:
+# DEADLOCK/backend
+#
 BASE_DIR = Path(__file__).resolve().parents[2]
-SEEDED_DATASET = BASE_DIR / "data" / "seeded_project.json"
+
+SEEDED_DATASET = (
+    BASE_DIR
+    / "data"
+    / "seeded_project.json"
+)
 
 
 def load_seeded_dataset() -> dict:
     """
-    Load the production DEADLOCK risk-discovery dataset.
+    Load the deterministic DEADLOCK demo dataset.
 
-    expected_results.json is intentionally never used.
+    This is the primary risk-discovery input for the
+    hackathon/demo environment.
+
+    GitHub is NOT required.
+    SQLite is NOT required.
+    expected_results.json is NEVER loaded here.
     """
+
     if not SEEDED_DATASET.exists():
         raise HTTPException(
             status_code=500,
-            detail=f"Seeded dataset not found: {SEEDED_DATASET}",
+            detail=(
+                "Seeded dataset not found: "
+                f"{SEEDED_DATASET}"
+            ),
         )
 
     try:
@@ -48,47 +75,52 @@ def load_seeded_dataset() -> dict:
             encoding="utf-8",
         ) as file:
             data = json.load(file)
+
     except json.JSONDecodeError as exc:
         raise HTTPException(
             status_code=500,
-            detail=f"Invalid seeded_project.json: {exc}",
+            detail=(
+                "Invalid seeded_project.json: "
+                f"{exc}"
+            ),
         ) from exc
 
     if not isinstance(data, dict):
         raise HTTPException(
             status_code=500,
-            detail="seeded_project.json must contain a JSON object.",
+            detail=(
+                "seeded_project.json must contain "
+                "a JSON object."
+            ),
         )
 
     return data
 
 
-def get_project_or_404(owner: str, repo: str) -> ProjectData:
-    data = load_project(owner, repo)
-
-    if not data:
-        raise HTTPException(
-            status_code=404,
-            detail="Project not synced yet",
-        )
-
-    return ProjectData(**data)
-
-
 def enrich_risk(risk):
     """
-    Run the agent pipeline over one deterministic risk.
+    Run the optional DEADLOCK agent pipeline over
+    one deterministic risk.
+
+    Detection remains usable even if an optional
+    agent layer fails.
     """
+
     risk = risk_agent.explain(risk)
     risk = verifier.verify(risk)
     risk = intervention.recommend(risk)
+
     return risk
 
 
 def risk_to_dict(risk):
     """
-    Safely serialize either a Pydantic Risk model or a dict.
+    Safely serialize either:
+      - Pydantic model
+      - dictionary
+      - regular Python object
     """
+
     if hasattr(risk, "model_dump"):
         return risk.model_dump()
 
@@ -99,7 +131,11 @@ def risk_to_dict(risk):
         return risk
 
     return {
-        "risk_id": getattr(risk, "risk_id", "RISK"),
+        "risk_id": getattr(
+            risk,
+            "risk_id",
+            "RISK",
+        ),
         "title": getattr(
             risk,
             "title",
@@ -143,6 +179,10 @@ def risk_to_dict(risk):
     }
 
 
+# ============================================================
+# GET ALL RISKS
+# ============================================================
+
 @router.get("/{owner}/{repo}")
 def get_risks(
     owner: str,
@@ -151,32 +191,54 @@ def get_risks(
     """
     Detect and verify project risks.
 
-    DEADLOCK uses seeded_project.json as its production/demo
-    risk-discovery input. GitHub-synced data may still be stored
-    and displayed as project context.
+    DEADLOCK uses seeded_project.json as the
+    deterministic production/demo risk-discovery input.
+
+    IMPORTANT:
+    This endpoint does NOT require:
+      - GitHub
+      - GITHUB_TOKEN
+      - GitHub repository synchronization
+      - SQLite project data
+
+    owner/repo are retained in the URL so the existing
+    frontend/API contract does not need to change.
     """
 
-    # Keep the synced project requirement so the UI/API flow
-    # remains consistent.
-    get_project_or_404(owner, repo)
-
-    # Production risk-discovery input.
+    # --------------------------------------------------------
+    # Load deterministic demo dataset directly.
+    # --------------------------------------------------------
     seeded_data = load_seeded_dataset()
 
-    detected_risks = detect_risks(seeded_data)
+    # --------------------------------------------------------
+    # Run DEADLOCK risk detection.
+    # --------------------------------------------------------
+    detected_risks = detect_risks(
+        seeded_data
+    )
 
     final_risks = []
 
+    # --------------------------------------------------------
+    # Enrich each detected risk.
+    #
+    # Agent failures must not prevent deterministic
+    # risk detection from being returned.
+    # --------------------------------------------------------
     for risk in detected_risks:
+
         try:
-            enriched = enrich_risk(risk)
+            enriched = enrich_risk(
+                risk
+            )
+
         except Exception:
-            # Keep deterministic detection usable even if an
-            # optional agent layer has a problem.
             enriched = risk
 
         final_risks.append(
-            risk_to_dict(enriched)
+            risk_to_dict(
+                enriched
+            )
         )
 
     return {
@@ -187,6 +249,10 @@ def get_risks(
     }
 
 
+# ============================================================
+# GET ONE RISK
+# ============================================================
+
 @router.get("/{owner}/{repo}/{risk_id}")
 def get_risk(
     owner: str,
@@ -194,16 +260,29 @@ def get_risk(
     risk_id: str,
 ):
     """
-    Return one verified risk from the seeded project dataset.
+    Return one verified risk from the seeded
+    DEADLOCK project dataset.
+
+    GitHub and SQLite are NOT required.
     """
 
-    get_project_or_404(owner, repo)
-
+    # --------------------------------------------------------
+    # Load deterministic demo dataset directly.
+    # --------------------------------------------------------
     seeded_data = load_seeded_dataset()
 
-    detected_risks = detect_risks(seeded_data)
+    # --------------------------------------------------------
+    # Detect risks.
+    # --------------------------------------------------------
+    detected_risks = detect_risks(
+        seeded_data
+    )
 
+    # --------------------------------------------------------
+    # Find requested risk.
+    # --------------------------------------------------------
     for risk in detected_risks:
+
         current_id = str(
             getattr(
                 risk,
@@ -212,15 +291,35 @@ def get_risk(
             )
         )
 
+        # Also support dictionary-based risks.
+        if isinstance(risk, dict):
+            current_id = str(
+                risk.get(
+                    "risk_id",
+                    "",
+                )
+            )
+
         if current_id == risk_id:
+
             try:
-                risk = enrich_risk(risk)
+                risk = enrich_risk(
+                    risk
+                )
+
             except Exception:
                 pass
 
-            return risk_to_dict(risk)
+            return risk_to_dict(
+                risk
+            )
 
+    # --------------------------------------------------------
+    # Risk was not found.
+    # --------------------------------------------------------
     raise HTTPException(
         status_code=404,
-        detail=f"Risk '{risk_id}' not found",
+        detail=(
+            f"Risk '{risk_id}' not found"
+        ),
     )
