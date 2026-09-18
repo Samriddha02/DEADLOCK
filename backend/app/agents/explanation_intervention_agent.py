@@ -29,7 +29,9 @@ class ExplanationInterventionAgent:
         try:
             explanations: list[dict[str, str]] = []
             interventions: list[SuggestedIntervention] = []
+            verdicts = context.adversarial_verdicts
 
+            # 1. Explanations for Verified Risks
             for idx, risk in enumerate(verified_risks, start=1):
                 risk_id = str(getattr(risk, "risk_id", f"RISK-{idx}"))
                 title = str(getattr(risk, "title", "Project Risk"))
@@ -40,6 +42,7 @@ class ExplanationInterventionAgent:
 
                 exp = {
                     "risk_id": risk_id,
+                    "verification_status": "VERIFIED",
                     "what": title,
                     "why": impact,
                     "which_entities": f"Root cause: {root_cause}; Chain: {' -> '.join(causal_chain)}",
@@ -79,6 +82,20 @@ class ExplanationInterventionAgent:
                         expected_impact="Prevents runtime breaking failures in production",
                         executed=False,
                     ))
+
+            # 2. Explanations for Rejected / Insufficient Evidence Verdicts (Adversarial transparency)
+            for v in verdicts:
+                if v.status in {"REJECTED", "INSUFFICIENT_EVIDENCE"}:
+                    explanations.append({
+                        "risk_id": v.candidate_id,
+                        "verification_status": v.status,
+                        "what": f"Candidate risk {v.candidate_id} was {v.status.lower()}",
+                        "why": v.reason or "Evidence contradicted or insufficiently supported active risk hypothesis.",
+                        "which_entities": f"Candidate: {v.candidate_id}",
+                        "how_propagates": "No propagation — candidate is not an active verified risk.",
+                        "evidence_summary": f"False positive: {v.is_false_positive}; Confidence: {v.confidence}",
+                        "suggested_action": "No operational intervention needed for rejected/unverified candidate.",
+                    })
 
             # Additional interventions for bottleneck findings if not already covered
             for b in bottlenecks:

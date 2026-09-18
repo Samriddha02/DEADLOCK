@@ -31,6 +31,9 @@ class AdversarialVerdict(BaseModel):
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     reason: str = ""
     evidence: list[dict[str, Any]] = Field(default_factory=list)
+    state: str | None = None
+    temporal_validity: bool | None = None
+    contradictions: list[str] = Field(default_factory=list)
 
 
 # ============================================================
