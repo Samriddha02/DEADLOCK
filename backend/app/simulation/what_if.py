@@ -24,12 +24,17 @@ from app.agents.verifier_agent import (
     VerifierAgent,
 )
 
+from app.simulation.propagation_engine import (
+    PropagationEngine,
+)
+
 
 # ============================================================
-# Verifier
+# Verifier & Propagation Engine
 # ============================================================
 
 verifier = VerifierAgent()
+engine = PropagationEngine()
 
 
 # ============================================================
@@ -63,7 +68,7 @@ def _apply_delay(
 ) -> None:
 
     node_id = str(
-        request.node_id
+        request.effective_target_node
     )
 
     if ":" in node_id:
@@ -149,144 +154,76 @@ def simulate(
     )
 
     # ========================================================
-    # Determine affected nodes
+    # Execute generic failure propagation
     # ========================================================
 
-    target_node = _find_node(graph, request.node_id) or request.node_id
-    affected_nodes = []
-
-    if graph.has_node(target_node):
-        affected_nodes = list(
-            nx.descendants(
-                graph,
-                target_node,
-            )
-        )
-        affected_nodes.insert(
-            0,
-            target_node,
-        )
+    prop = engine.propagate(
+        graph,
+        request,
+    )
 
     # ========================================================
-    # Create isolated simulation copy
+    # Create isolated simulation copy for risk detection
     # ========================================================
 
     scenario_project = copy.deepcopy(
         project_data
     )
 
-    # ========================================================
-    # Apply hypothetical delay
-    # ========================================================
-
     _apply_delay(
         scenario_project,
         request,
     )
 
-    # ========================================================
-    # Detect risks using same detector
-    # ========================================================
-
     detected_risks = detect_risks(
         scenario_project
     )
 
-    # ========================================================
-    # Verify detected risks
-    # ========================================================
-
     final_risks: list[Risk] = []
 
     for risk in detected_risks:
-
-        if isinstance(
-            risk,
-            dict,
-        ):
-
-            risk = Risk(
-                **risk
-            )
-
-        elif not isinstance(
-            risk,
-            Risk,
-        ):
-
-            if hasattr(
-                risk,
-                "model_dump",
-            ):
-
-                risk = Risk(
-                    **risk.model_dump()
-                )
-
+        if isinstance(risk, dict):
+            risk = Risk(**risk)
+        elif not isinstance(risk, Risk):
+            if hasattr(risk, "model_dump"):
+                risk = Risk(**risk.model_dump())
             else:
                 continue
 
-        # ----------------------------------------------
-        # Agent 3 verification
-        # ----------------------------------------------
-
         try:
-
-            risk = verifier.verify(
-                risk
-            )
-
+            risk = verifier.verify(risk)
         except Exception:
-
-            # Simulation should remain usable even
-            # if verification encounters an issue.
             pass
 
-        final_risks.append(
-            risk
-        )
+        final_risks.append(risk)
 
     # ========================================================
-    # Recommendation
-    # ========================================================
-
-    if affected_nodes:
-
-        recommendation = (
-            "Prioritize the selected dependency "
-            "and inspect the affected downstream "
-            "nodes before the simulated delay "
-            "propagates."
-        )
-
-    else:
-
-        recommendation = (
-            "No downstream graph impact was "
-            "identified for the selected node."
-        )
-
-    # ========================================================
-    # Risk Score & Causal Chain calculation
+    # Risk Score calculation
     # ========================================================
 
     risk_score = 85
     if final_risks:
         risk_score = int(max([r.probability * 100 for r in final_risks]))
 
+    after_dict = dict(prop.get("after", {}))
+    after_dict["risk_score"] = risk_score
+
     # ========================================================
     # Final result
     # ========================================================
 
     return SimulationResult(
-        scenario=(
-            f"Simulate "
-            f"{request.delay_days}-day delay "
-            f"for {request.node_id}"
-        ),
-        affected_nodes=affected_nodes,
+        scenario=prop.get("scenario", f"Simulate failure for {request.effective_target_node}"),
+        affected_nodes=prop.get("affected_nodes", []),
+        unaffected_nodes=prop.get("unaffected_nodes", []),
+        unknown_nodes=prop.get("unknown_nodes", []),
         new_risks=final_risks,
-        recommendation=recommendation,
-        after={"risk_score": risk_score},
-        causal_chain=affected_nodes,
+        recommendation=prop.get("recommendation", ""),
+        before=prop.get("before", {}),
+        after=after_dict,
+        causal_chain=prop.get("causal_chain", []),
+        propagation_paths=prop.get("propagation_paths", []),
+        evidence=prop.get("evidence", []),
+        truncated=prop.get("truncated", False),
+        warnings=prop.get("warnings", []),
     )

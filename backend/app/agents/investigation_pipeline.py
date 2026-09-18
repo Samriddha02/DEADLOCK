@@ -32,22 +32,29 @@ class InvestigationContext:
 
     def __init__(
         self,
-        project: Any,
+        project: Any = None,
         owner: str = "Aritra-DSU",
         repo: str = "RF-SENTINEL",
+        data: Any = None,
+        raw_risks: list | None = None,
+        verified_risks: list | None = None,
     ) -> None:
         self.request_id: str = str(uuid.uuid4())
         self.owner: str = owner.strip() if owner else "Aritra-DSU"
         self.repo: str = repo.strip() if repo else "RF-SENTINEL"
         self.project_label: str = f"{self.owner}/{self.repo}"
 
-        # Convert project to raw dictionary
-        if hasattr(project, "model_dump"):
-            self.data: dict[str, Any] = project.model_dump()
-        elif isinstance(project, dict):
-            self.data = dict(project)
+        # Use explicit data if provided, else fallback to project argument
+        src = data if data is not None else project
+        if hasattr(src, "model_dump"):
+            self.data: dict[str, Any] = src.model_dump()
+        elif isinstance(src, dict):
+            self.data = dict(src)
         else:
             self.data = {}
+        # Store provided risks for compatibility
+        self.raw_risks = raw_risks or []
+        self.verified_risks = verified_risks or []
 
         if isinstance(self.data.get("project_data"), dict):
             self.data = self.data["project_data"]
