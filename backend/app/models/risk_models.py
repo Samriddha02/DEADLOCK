@@ -43,6 +43,10 @@ class Risk(BaseModel):
         ge=0,
         le=1
     )
+    # New optional deterministic scoring fields – present only for verified risks
+    risk_score: Optional[int] = Field(default=None, ge=0, le=100)
+    score_breakdown: Optional[dict[str, Any]] = Field(default=None)
+    score_band: Optional[Literal["LOW", "MODERATE", "HIGH", "CRITICAL"]] = Field(default=None)
 
 
 class RiskList(BaseModel):

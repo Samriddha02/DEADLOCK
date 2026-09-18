@@ -781,6 +781,7 @@ class VerifierAgent:
         risk.verified = verified
         risk.verification_confidence = confidence
 
+        # Append verification evidence
         risk.evidence = [
             *evidence,
             {
@@ -794,5 +795,13 @@ class VerifierAgent:
                 "confidence": confidence,
             },
         ]
+
+        # Deterministic risk scoring for verified risks
+        if verified:
+            from app.risk_engine.scoring import compute_score
+            score, breakdown, band = compute_score(risk)
+            risk.risk_score = score
+            risk.score_breakdown = breakdown
+            risk.score_band = band
 
         return risk

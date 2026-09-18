@@ -176,6 +176,22 @@ def risk_to_dict(risk):
             "recommendation",
             "",
         ),
+        # Optional deterministic scoring fields – may be None for unverified risks
+        "risk_score": getattr(
+            risk,
+            "risk_score",
+            None,
+        ),
+        "score_breakdown": getattr(
+            risk,
+            "score_breakdown",
+            None,
+        ),
+        "score_band": getattr(
+            risk,
+            "score_band",
+            None,
+        ),
     }
 
 
