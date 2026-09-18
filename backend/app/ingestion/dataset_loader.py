@@ -47,6 +47,17 @@ def load_seeded_project() -> dict[str, Any]:
     return data
 
 
+from app.models.project_models import ProjectData
+
+
+def load_canonical_project() -> ProjectData:
+    """
+    Load the seeded NEXUS project dataset into the canonical ProjectData model.
+    """
+    data = load_seeded_project()
+    return ProjectData(**data)
+
+
 def get_project_data() -> dict[str, Any]:
     """
     Convenience function for accessing the

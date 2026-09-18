@@ -65,22 +65,7 @@ class GitHubMilestone(BaseModel):
     closed_issues: int = 0
 
 
-class ProjectData(BaseModel):
-    owner: str
-    repo: str
+from app.models.project_models import ProjectData as CanonicalProjectData
 
-    issues: list[GitHubIssue] = Field(
-        default_factory=list
-    )
-
-    pull_requests: list[GitHubPullRequest] = Field(
-        default_factory=list
-    )
-
-    commits: list[GitHubCommit] = Field(
-        default_factory=list
-    )
-
-    milestones: list[GitHubMilestone] = Field(
-        default_factory=list
-    )
+ProjectData = CanonicalProjectData
+GitHubProjectData = CanonicalProjectData

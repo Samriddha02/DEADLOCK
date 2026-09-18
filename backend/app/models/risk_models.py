@@ -53,13 +53,16 @@ class RiskList(BaseModel):
 
 
 class SimulationRequest(BaseModel):
-    node_id: str
+    node_id: str = "pr_11"
 
     delay_days: int = Field(
         default=3,
-        ge=1,
+        ge=0,
         le=365
     )
+
+    event_type: str = "delay"
+    latency_ms: int = 0
 
 
 class SimulationResult(BaseModel):
@@ -74,3 +77,11 @@ class SimulationResult(BaseModel):
     )
 
     recommendation: str
+
+    after: dict[str, Any] = Field(
+        default_factory=dict
+    )
+
+    causal_chain: list[str] = Field(
+        default_factory=list
+    )

@@ -13,6 +13,7 @@ type Risk = {
   severity?: string;
   probability?: number | string;
   confidence?: number | string;
+  score?: number | string;
   impact?: string;
   description?: string;
   explanation?: string;
@@ -24,13 +25,6 @@ type Risk = {
 type Health = {
   status?: string;
   service?: string;
-};
-
-type SyncResponse = {
-  message?: string;
-  owner?: string;
-  repo?: string;
-  project?: unknown;
 };
 
 type ApiError = {
@@ -58,7 +52,7 @@ function cleanRepositoryInput(value: string): string {
 }
 
 function cleanOwnerInput(value: string): string {
-  let cleaned = value.trim();
+  const cleaned = value.trim();
 
   if (!cleaned) {
     return "";
@@ -172,8 +166,8 @@ async function request<T>(
 export default function Home() {
   const [health, setHealth] = useState<Health | null>(null);
 
-  const [owner, setOwner] = useState("Aritra-DSU");
-  const [repo, setRepo] = useState("RF-SENTINEL");
+  const [owner, setOwner] = useState("CampusConnect");
+  const [repo, setRepo] = useState("demo");
 
   const [project, setProject] = useState<unknown>(null);
 
@@ -186,46 +180,38 @@ export default function Home() {
 
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    void checkHealth();
-
-    const interval = window.setInterval(() => {
-      void checkHealth();
-    }, 10000);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, []);
-
-  async function checkHealth() {
+  const checkHealth = async () => {
     try {
       const data = await request<Health>("/health");
       setHealth(data);
     } catch {
       setHealth(null);
     }
-  }
+  };
 
-  async function loadResults(
-    cleanOwner: string,
-    cleanRepo: string
-  ) {
-    const encodedOwner = encodeURIComponent(cleanOwner);
-    const encodedRepo = encodeURIComponent(cleanRepo);
+  useEffect(() => {
+    const initialCheck = window.setTimeout(() => {
+      void checkHealth();
+    }, 0);
 
-    const [projectData, riskData] = await Promise.all([
-      request<unknown>(
-        `/api/projects/${encodedOwner}/${encodedRepo}`
-      ),
-      request<unknown>(
-        `/api/risks/${encodedOwner}/${encodedRepo}`
-      ),
-    ]);
+    const interval = window.setInterval(() => {
+      void checkHealth();
+    }, 10000);
 
-    setProject(projectData);
+    return () => {
+      window.clearTimeout(initialCheck);
+      window.clearInterval(interval);
+    };
+  }, []);
 
-    const discoveredRisks = normalizeRisks(riskData);
+  async function loadResults() {
+    const result = await request<{
+      project?: unknown;
+      risks?: unknown;
+    }>("/api/projects/demo");
+    setProject(result.project ?? result);
+
+    const discoveredRisks = normalizeRisks(result.risks);
 
     setRisks(discoveredRisks);
 
@@ -264,18 +250,16 @@ export default function Home() {
     setRisks([]);
     setSelectedRisk(null);
 
-    const encodedOwner = encodeURIComponent(cleanOwner);
-    const encodedRepo = encodeURIComponent(cleanRepo);
-
     try {
-      await request<SyncResponse>(
-        `/api/projects/${encodedOwner}/${encodedRepo}/sync`,
+      await request<unknown>(
+        "/api/projects/analyze",
         {
           method: "POST",
+          body: JSON.stringify({ owner: cleanOwner, repo: cleanRepo }),
         }
       );
 
-      await loadResults(cleanOwner, cleanRepo);
+      await loadResults();
     } catch (err) {
       setError(
         err instanceof Error
@@ -306,18 +290,16 @@ export default function Home() {
     setSyncing(true);
     setError("");
 
-    const encodedOwner = encodeURIComponent(cleanOwner);
-    const encodedRepo = encodeURIComponent(cleanRepo);
-
     try {
-      await request<SyncResponse>(
-        `/api/projects/${encodedOwner}/${encodedRepo}/sync`,
+      await request<unknown>(
+        "/api/projects/analyze",
         {
           method: "POST",
+          body: JSON.stringify({ owner: cleanOwner, repo: cleanRepo }),
         }
       );
 
-      await loadResults(cleanOwner, cleanRepo);
+      await loadResults();
     } catch (err) {
       setError(
         err instanceof Error
@@ -348,26 +330,35 @@ export default function Home() {
     setSimulating(true);
     setError("");
 
-    const encodedOwner = encodeURIComponent(cleanOwner);
-    const encodedRepo = encodeURIComponent(cleanRepo);
-
     try {
       const data = await request<unknown>(
-        `/api/simulate/${encodedOwner}/${encodedRepo}`,
+        "/api/simulate",
         {
           method: "POST",
+          body: JSON.stringify({
+            node_id: "PR-47",
+            event_type: "delay",
+            delay_days: 3,
+          }),
         }
       );
 
-      const possibleRisks =
-        typeof data === "object" &&
-        data !== null &&
-        "risks" in data
-          ? (data as { risks: unknown }).risks
-          : data;
-
-      const simulationRisks =
-        normalizeRisks(possibleRisks);
+      const simulationResult = data as {
+        scenario?: string;
+        after?: { risk_score?: number };
+        recommendation?: string;
+        causal_chain?: string[];
+        affected_nodes?: string[];
+      };
+      const simulationRisks: Risk[] = [{
+        id: "SIMULATION-PR-47",
+        title: simulationResult.scenario ?? "Controlled simulation",
+        severity: "CRITICAL",
+        score: simulationResult.after?.risk_score,
+        description: simulationResult.recommendation,
+        causal_chain: simulationResult.causal_chain,
+        affected_nodes: simulationResult.affected_nodes,
+      }];
 
       setRisks(simulationRisks);
 
@@ -632,12 +623,12 @@ export default function Home() {
                         </span>
                       )}
 
-                      {risk.probability !==
+                      {risk.score !==
                         undefined && (
                         <span>
-                          Probability:{" "}
+                          Risk score:{" "}
                           {String(
-                            risk.probability
+                            risk.score
                           )}
                         </span>
                       )}
