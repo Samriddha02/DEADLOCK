@@ -1054,4 +1054,46 @@ def build_graph(
                     relation="has_deadline",
                 )
 
+    # ========================================================
+    # Source code files and dependency intelligence
+    # ========================================================
+
+    files_data = dataset.get("files")
+    if isinstance(files_data, dict):
+        from app.dependency_intelligence.progressive_manager import DependencyIntelligenceManager
+        from app.dependency_intelligence.graph_integrator import integrate_dependency_intelligence
+
+        mgr = DependencyIntelligenceManager()
+        intel = mgr.analyze_project_files(files_data)
+        integrate_dependency_intelligence(graph, intel)
+
+    elif isinstance(files_data, list):
+        for f in files_data:
+            if isinstance(f, str):
+                node_id = f"file:{f}"
+                if not graph.has_node(node_id):
+                    graph.add_node(node_id, type="file", label=f, data={"id": f})
+            elif isinstance(f, dict) and f.get("path"):
+                f_path = str(f["path"])
+                node_id = f"file:{f_path}"
+                if not graph.has_node(node_id):
+                    graph.add_node(node_id, type="file", label=f_path, data=f)
+
+    # Direct source dependencies list
+    source_deps = dataset.get("source_dependencies") or dataset.get("code_dependencies")
+    if isinstance(source_deps, list):
+        for dep in source_deps:
+            if isinstance(dep, dict):
+                src = str(dep.get("source", dep.get("from", "")))
+                tgt = str(dep.get("target", dep.get("to", "")))
+                rel = str(dep.get("relation", dep.get("relationship_type", "imports"))).lower()
+                if src and tgt:
+                    src_node = src if ":" in src else f"file:{src}"
+                    tgt_node = tgt if ":" in tgt else f"file:{tgt}"
+                    if not graph.has_node(src_node):
+                        graph.add_node(src_node, type="file", label=src, data={"id": src})
+                    if not graph.has_node(tgt_node):
+                        graph.add_node(tgt_node, type="file", label=tgt, data={"id": tgt})
+                    graph.add_edge(src_node, tgt_node, relation=rel, data=dep)
+
     return graph

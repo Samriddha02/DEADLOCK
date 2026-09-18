@@ -59,11 +59,31 @@ class DependencyDiscoveryAgent:
                     reachable = downstream_nodes(graph, node, max_depth=5)
                     pr_reachability[node] = len(reachable)
 
+            # Analyze progressive project intelligence if files or code data exist
+            intelligence_summary = {
+                "project_intelligence_status": "complete" if graph.number_of_nodes() > 50 else "partial",
+                "known_nodes": graph.number_of_nodes(),
+                "known_relationships": graph.number_of_edges(),
+                "unknown_areas": [],
+            }
+
+            files_data = context.data.get("files")
+            if isinstance(files_data, dict):
+                from app.dependency_intelligence.progressive_manager import DependencyIntelligenceManager
+                mgr = DependencyIntelligenceManager()
+                intel = mgr.analyze_project_files(files_data)
+                intelligence_summary["project_intelligence_status"] = intel.project_intelligence_status
+                intelligence_summary["unknown_areas"] = intel.unknown_areas
+                intelligence_summary["discovered_dependencies_count"] = len(intel.discovered_dependencies)
+                intelligence_summary["manifest_packages"] = intel.manifest_packages
+                intelligence_summary["api_endpoints"] = intel.api_endpoints
+
             findings = {
                 "graph_metrics": metrics,
                 "candidate_critical_chains": candidate_chains,
                 "pr_reachability_counts": pr_reachability,
                 "discovered_relationships_count": graph.number_of_edges(),
+                "project_intelligence": intelligence_summary,
             }
 
             context.dependency_findings = findings
