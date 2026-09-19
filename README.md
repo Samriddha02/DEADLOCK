@@ -497,7 +497,8 @@ Copy `backend/.env.example` to `backend/.env`. **All sensitive tokens remain str
 ## Team
 
 - **Samriddha** ([@Samriddha02](https://github.com/Samriddha02))
-- [Team Member]
+- **Aritra** ([@Aritra-DSU](https://github.com/Aritra-DSU))
+- **Bivob** ([@Bivobrocker](https://github.com/Bivobrocker))
 
 ---
 
