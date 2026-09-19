@@ -163,24 +163,26 @@ def simulate(
     )
 
     # ========================================================
-    # Create isolated simulation copy for risk detection
+    # BASELINE: detect risks on the UNMODIFIED real project
     # ========================================================
 
-    scenario_project = copy.deepcopy(
-        project_data
-    )
+    baseline_risks = detect_risks(project_data)
+    baseline_risk_count    = len(baseline_risks)
+    baseline_critical      = sum(1 for r in baseline_risks if r.severity == "CRITICAL")
+    baseline_high          = sum(1 for r in baseline_risks if r.severity == "HIGH")
+    # Weighted baseline score: each CRITICAL=20pts, HIGH=10pts, MEDIUM=5pts, capped at 100
+    baseline_score = min(100, baseline_critical * 20 + baseline_high * 10 +
+                         sum(1 for r in baseline_risks if r.severity == "MEDIUM") * 5)
 
-    _apply_delay(
-        scenario_project,
-        request,
-    )
+    # ========================================================
+    # SCENARIO: apply delay/event to a copy, detect new risks
+    # ========================================================
 
-    detected_risks = detect_risks(
-        scenario_project
-    )
+    scenario_project = copy.deepcopy(project_data)
+    _apply_delay(scenario_project, request)
+    detected_risks = detect_risks(scenario_project)
 
     final_risks: list[Risk] = []
-
     for risk in detected_risks:
         if isinstance(risk, dict):
             risk = Risk(**risk)
@@ -189,24 +191,47 @@ def simulate(
                 risk = Risk(**risk.model_dump())
             else:
                 continue
-
         try:
             risk = verifier.verify(risk)
         except Exception:
             pass
-
         final_risks.append(risk)
 
     # ========================================================
-    # Risk Score calculation
+    # SIMULATED SCORE: baseline + downstream propagation impact
+    # Downstream affected nodes (excluding root) add to score.
+    # Different scenarios produce different counts → different scores.
     # ========================================================
 
-    risk_score = 85
-    if final_risks:
-        risk_score = int(max([r.probability * 100 for r in final_risks]))
+    affected = prop.get("affected_nodes", [])
+    root_node = prop.get("target_node", request.effective_target_node)
+    downstream_count = len([n for n in affected if n != root_node])
+
+    scenario_critical = sum(1 for r in final_risks if r.severity == "CRITICAL")
+    scenario_high     = sum(1 for r in final_risks if r.severity == "HIGH")
+    scenario_medium   = sum(1 for r in final_risks if r.severity == "MEDIUM")
+
+    # Score = risk-severity contribution + downstream propagation (2 pts per downstream node, max 20)
+    risk_score = min(100,
+        scenario_critical * 20 +
+        scenario_high     * 10 +
+        scenario_medium   *  5 +
+        min(20, downstream_count * 2)
+    )
+
+    # ========================================================
+    # Build before/after dicts with real risk scores
+    # ========================================================
+
+    before_dict = dict(prop.get("before", {}))
+    before_dict["risk_score"]    = baseline_score
+    before_dict["risk_count"]    = baseline_risk_count
+    before_dict["critical_count"] = baseline_critical
 
     after_dict = dict(prop.get("after", {}))
-    after_dict["risk_score"] = risk_score
+    after_dict["risk_score"]     = risk_score
+    after_dict["risk_count"]     = len(final_risks)
+    after_dict["critical_count"] = scenario_critical
 
     # ========================================================
     # Final result
@@ -219,7 +244,7 @@ def simulate(
         unknown_nodes=prop.get("unknown_nodes", []),
         new_risks=final_risks,
         recommendation=prop.get("recommendation", ""),
-        before=prop.get("before", {}),
+        before=before_dict,
         after=after_dict,
         causal_chain=prop.get("causal_chain", []),
         propagation_paths=prop.get("propagation_paths", []),

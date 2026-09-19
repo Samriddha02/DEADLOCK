@@ -10,7 +10,6 @@ from app.agents.risk_agent import RiskAgent
 from app.agents.verifier_agent import VerifierAgent
 from app.agents.intervention_agent import InterventionAgent
 from app.database.repositories import (
-    is_demo_repo,
     load_project,
     ProjectNotFoundError,
     ProjectCorruptError,
@@ -211,9 +210,8 @@ def _get_risks_dataset(owner: str, repo: str) -> tuple[dict, str]:
     owner = owner.strip()
     repo = repo.strip()
 
-    if is_demo_repo(owner, repo):
-        return load_seeded_dataset(), "data/seeded_project.json"
-
+    # Always load from SQLite — no silent seeded fallback for live repos.
+    # Demo mode is only available via the dedicated demo route.
     try:
         data = load_project(owner, repo)
         return data, "SQLite database"
@@ -302,4 +300,4 @@ def get_risk(
     raise HTTPException(
         status_code=404,
         detail=f"Risk '{risk_id}' not found in project '{owner}/{repo}'.",
-    )
+    )
