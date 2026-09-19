@@ -1,0 +1,29 @@
+@import "tailwindcss";
+/* React Flow base styles — must be imported globally before component renders */
+@import "@xyflow/react/dist/style.css";
+
+:root {
+  --background: #050506;
+  --foreground: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #050506;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #050506;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+select {
+  font: inherit;
+}

@@ -1,0 +1,38 @@
+{
+  "scenario_name": "False Positive — Obsolete REST V1 Adapter Dependency",
+  "description": "Raw evidence regarding stale PR #4 and merged PR #10 for Verifier Agent risk evaluation.",
+  "project_id": "proj_nexus_01",
+  "suspected_issue": "issue_04",
+  "suspected_pr": "pr_04",
+  "scenario_evidence_ids": [
+    "pr_04",
+    "issue_04",
+    "issue_10",
+    "pr_10",
+    "commit_22",
+    "dep_rel_17"
+  ],
+  "raw_context": {
+    "suspected_item": {
+      "id": "pr_04",
+      "title": "refactor: Legacy REST V1 endpoint adapter",
+      "status": "open",
+      "open_duration_days": 18,
+      "merge_conflicts": 5
+    },
+    "historical_dependency": {
+      "id": "dep_rel_17",
+      "source_id": "issue_04",
+      "target_id": "issue_10",
+      "type": "historical_dependency"
+    },
+    "superseding_event": {
+      "id": "pr_10",
+      "title": "feat: Native GraphQL Resolver & Router Protocol Engine",
+      "status": "merged",
+      "merged_at": "2026-08-15T16:30:00Z",
+      "commit_id": "commit_22",
+      "commit_message": "feat(graphql): native GraphQL resolver engine & remove REST dependency"
+    }
+  }
+}

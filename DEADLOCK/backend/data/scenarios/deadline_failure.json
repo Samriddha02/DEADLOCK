@@ -1,0 +1,72 @@
+{
+  "scenario_name": "Deadline Failure — Distributed Lock Manager Slippage",
+  "description": "Raw activity telemetry and dependency topology around the v1.0-rc Client Executive Demo release path.",
+  "project_id": "proj_nexus_01",
+  "target_milestone": "ms_03",
+  "target_deadline": "dl_03",
+  "scenario_evidence_ids": [
+    "pr_11",
+    "rev_13",
+    "rev_14",
+    "issue_11",
+    "issue_14",
+    "dep_01",
+    "dl_03",
+    "dep_rel_11",
+    "dep_rel_12",
+    "dep_rel_13",
+    "dep_rel_14"
+  ],
+  "raw_context": {
+    "open_pr": {
+      "id": "pr_11",
+      "title": "feat: Distributed Lock Manager & Concurrency Control",
+      "author_id": "dev_01",
+      "status": "open",
+      "last_updated": "2026-08-19T11:00:00Z",
+      "review_comments": [
+        {
+          "review_id": "rev_13",
+          "reviewer": "dev_02",
+          "status": "changes_requested",
+          "timestamp": "2026-08-18T11:00:00Z"
+        },
+        {
+          "review_id": "rev_14",
+          "reviewer": "dev_05",
+          "status": "commented",
+          "timestamp": "2026-08-18T14:30:00Z"
+        }
+      ]
+    },
+    "blocked_issues": [
+      {
+        "id": "issue_11",
+        "title": "Concurrency Control & Locking Engine",
+        "status": "in_progress",
+        "remaining_estimated_hours": 35
+      },
+      {
+        "id": "issue_14",
+        "title": "Real-time Stream Aggregation & E2E Validation",
+        "status": "open",
+        "remaining_estimated_hours": 48
+      }
+    ],
+    "scheduled_deployments": [
+      {
+        "id": "dep_01",
+        "title": "Staging Cluster v1.0-beta Rollout",
+        "scheduled_at": "2026-08-26T10:00:00Z",
+        "status": "scheduled"
+      }
+    ],
+    "deadlines": [
+      {
+        "id": "dl_03",
+        "title": "Client Executive Demo Deadline",
+        "due_date": "2026-09-04T12:00:00Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1261 @@
+{
+  "project": {
+    "id": "proj_nexus_01",
+    "name": "NEXUS Core Platform",
+    "description": "Distributed real-time graph processing engine with event stream aggregation",
+    "repository": "github.com/nexus-org/nexus-core",
+    "created_at": "2026-07-01T08:00:00Z",
+    "default_branch": "main"
+  },
+  "developers": [
+    {
+      "id": "dev_01",
+      "name": "Alex Chen",
+      "username": "alexchen",
+      "email": "alex.chen@nexus.io",
+      "role": "Principal Backend Architect",
+      "timezone": "America/Los_Angeles"
+    },
+    {
+      "id": "dev_02",
+      "name": "Beatriz Silva",
+      "username": "bsilva",
+      "email": "beatriz.silva@nexus.io",
+      "role": "Senior Database Engineer",
+      "timezone": "America/Sao_Paulo"
+    },
+    {
+      "id": "dev_03",
+      "name": "Charlie Kim",
+      "username": "ckim",
+      "email": "charlie.kim@nexus.io",
+      "role": "Fullstack Software Engineer",
+      "timezone": "America/New_York"
+    },
+    {
+      "id": "dev_04",
+      "name": "Devon Vance",
+      "username": "dvance",
+      "email": "devon.vance@nexus.io",
+      "role": "Frontend & API Integration Lead",
+      "timezone": "Europe/London"
+    },
+    {
+      "id": "dev_05",
+      "name": "Elena Rostova",
+      "username": "erostova",
+      "email": "elena.rostova@nexus.io",
+      "role": "Senior QA & Automation Specialist",
+      "timezone": "Europe/Berlin"
+    },
+    {
+      "id": "dev_06",
+      "name": "Farhan Malik",
+      "username": "fmalik",
+      "email": "farhan.malik@nexus.io",
+      "role": "DevOps & Infrastructure Lead",
+      "timezone": "Asia/Dubai"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "ms_01",
+      "title": "v1.0-alpha Core Storage Engine",
+      "description": "Initial storage layer, WAL engine, and baseline graph nodes",
+      "status": "completed",
+      "created_at": "2026-07-01T09:00:00Z",
+      "target_date": "2026-08-01T23:59:59Z"
+    },
+    {
+      "id": "ms_02",
+      "title": "v1.0-beta Distributed Stream Pipeline",
+      "description": "Real-time stream aggregation, concurrency locking, and staging release",
+      "status": "in_progress",
+      "created_at": "2026-08-01T09:00:00Z",
+      "target_date": "2026-08-27T23:59:59Z"
+    },
+    {
+      "id": "ms_03",
+      "title": "v1.0-rc Production & Client Demo",
+      "description": "Production cluster deployment, end-to-end verification, and client demo",
+      "status": "open",
+      "created_at": "2026-08-05T09:00:00Z",
+      "target_date": "2026-09-05T23:59:59Z"
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "dl_01",
+      "title": "Analytics Protocol Freeze",
+      "milestone_id": "ms_02",
+      "due_date": "2026-08-22T17:00:00Z",
+      "description": "Final date for freezing API definitions for stream aggregation"
+    },
+    {
+      "id": "dl_02",
+      "title": "Staging Deployment Target",
+      "milestone_id": "ms_02",
+      "due_date": "2026-08-26T23:59:59Z",
+      "description": "Staging cluster environment ready for full QA load testing"
+    },
+    {
+      "id": "dl_03",
+      "title": "Client Executive Demo Deadline",
+      "milestone_id": "ms_03",
+      "due_date": "2026-09-04T12:00:00Z",
+      "description": "Hard deadline for executive demonstration with real-time stream engine"
+    },
+    {
+      "id": "dl_04",
+      "title": "Security & Compliance Audit",
+      "milestone_id": "ms_03",
+      "due_date": "2026-08-30T17:00:00Z",
+      "description": "External SOC2 & RBAC compliance audit signoff"
+    }
+  ],
+  "issues": [
+    {
+      "id": "issue_01",
+      "title": "Design WAL Storage Format",
+      "description": "Define binary layout for Write-Ahead Log records",
+      "status": "closed",
+      "priority": "high",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_01",
+      "estimated_hours": 30,
+      "created_at": "2026-07-02T10:00:00Z",
+      "updated_at": "2026-07-15T16:00:00Z",
+      "closed_at": "2026-07-15T16:00:00Z"
+    },
+    {
+      "id": "issue_02",
+      "title": "Implement RocksDB Storage Backend",
+      "description": "Integrate RocksDB key-value store wrapper for graph indices",
+      "status": "closed",
+      "priority": "high",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_02",
+      "milestone_id": "ms_01",
+      "estimated_hours": 40,
+      "created_at": "2026-07-05T09:00:00Z",
+      "updated_at": "2026-07-25T14:30:00Z",
+      "closed_at": "2026-07-25T14:30:00Z"
+    },
+    {
+      "id": "issue_03",
+      "title": "In-Memory Index Caching",
+      "description": "LRU buffer pool manager for hot graph traversal nodes",
+      "status": "closed",
+      "priority": "medium",
+      "reporter_id": "dev_02",
+      "assignee_id": "dev_03",
+      "milestone_id": "ms_01",
+      "estimated_hours": 25,
+      "created_at": "2026-07-10T11:00:00Z",
+      "updated_at": "2026-07-28T18:00:00Z",
+      "closed_at": "2026-07-28T18:00:00Z"
+    },
+    {
+      "id": "issue_04",
+      "title": "REST API V1 Compatibility Layer",
+      "description": "Legacy REST adapter endpoint mapping for v0.9 client fallback",
+      "status": "open",
+      "priority": "low",
+      "reporter_id": "dev_04",
+      "assignee_id": "dev_03",
+      "milestone_id": "ms_02",
+      "estimated_hours": 20,
+      "created_at": "2026-08-01T09:00:00Z",
+      "updated_at": "2026-08-10T10:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_05",
+      "title": "Core Distributed Consensus Engine",
+      "description": "Raft consensus implementation for leader election and state sync",
+      "status": "in_progress",
+      "priority": "critical",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_02",
+      "estimated_hours": 60,
+      "created_at": "2026-08-02T08:30:00Z",
+      "updated_at": "2026-08-18T15:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_06",
+      "title": "Cluster Heartbeat & Node Discovery",
+      "description": "Gossip protocol implementation for cluster node join/leave",
+      "status": "closed",
+      "priority": "medium",
+      "reporter_id": "dev_02",
+      "assignee_id": "dev_06",
+      "milestone_id": "ms_02",
+      "estimated_hours": 35,
+      "created_at": "2026-08-03T10:00:00Z",
+      "updated_at": "2026-08-14T11:00:00Z",
+      "closed_at": "2026-08-14T11:00:00Z"
+    },
+    {
+      "id": "issue_07",
+      "title": "gRPC Streaming Telemetry Interface",
+      "description": "Bidirectional stream service for live metrics export",
+      "status": "closed",
+      "priority": "high",
+      "reporter_id": "dev_03",
+      "assignee_id": "dev_04",
+      "milestone_id": "ms_02",
+      "estimated_hours": 30,
+      "created_at": "2026-08-04T09:00:00Z",
+      "updated_at": "2026-08-15T14:00:00Z",
+      "closed_at": "2026-08-15T14:00:00Z"
+    },
+    {
+      "id": "issue_08",
+      "title": "Prometheus & Grafana Dashboard Provisioning",
+      "description": "Helm chart and terraform templates for operational monitoring",
+      "status": "in_progress",
+      "priority": "medium",
+      "reporter_id": "dev_06",
+      "assignee_id": "dev_06",
+      "milestone_id": "ms_02",
+      "estimated_hours": 20,
+      "created_at": "2026-08-05T13:00:00Z",
+      "updated_at": "2026-08-17T09:30:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_09",
+      "title": "Database Schema V2 Migration Scripts",
+      "description": "SQL and Flyway migration scripts for dropping legacy event table",
+      "status": "in_progress",
+      "priority": "high",
+      "reporter_id": "dev_02",
+      "assignee_id": "dev_02",
+      "milestone_id": "ms_02",
+      "estimated_hours": 35,
+      "created_at": "2026-08-06T10:00:00Z",
+      "updated_at": "2026-08-16T16:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_10",
+      "title": "GraphQL API Gateway Migration",
+      "description": "Migrate core query client routes from REST to native GraphQL resolvers",
+      "status": "closed",
+      "priority": "high",
+      "reporter_id": "dev_04",
+      "assignee_id": "dev_04",
+      "milestone_id": "ms_02",
+      "estimated_hours": 40,
+      "created_at": "2026-08-06T14:00:00Z",
+      "updated_at": "2026-08-15T17:00:00Z",
+      "closed_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "id": "issue_11",
+      "title": "Concurrency Control & Locking Engine",
+      "description": "Distributed mutex and read/write lock manager for transaction isolation",
+      "status": "in_progress",
+      "priority": "critical",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_02",
+      "estimated_hours": 50,
+      "created_at": "2026-08-07T09:00:00Z",
+      "updated_at": "2026-08-19T11:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_12",
+      "title": "React Dashboard Query Visualizer",
+      "description": "Web UI component for visual graph query builder and node execution tree",
+      "status": "in_progress",
+      "priority": "medium",
+      "reporter_id": "dev_04",
+      "assignee_id": "dev_03",
+      "milestone_id": "ms_02",
+      "estimated_hours": 30,
+      "created_at": "2026-08-08T11:00:00Z",
+      "updated_at": "2026-08-18T10:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_13",
+      "title": "Event Sourcing Partition Rebalancing",
+      "description": "Dynamic partition reallocation algorithm for high throughput streams",
+      "status": "in_progress",
+      "priority": "high",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_02",
+      "estimated_hours": 45,
+      "created_at": "2026-08-09T08:00:00Z",
+      "updated_at": "2026-08-19T14:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_14",
+      "title": "Real-time Stream Aggregation & E2E Validation",
+      "description": "Integration test suite validating zero data-loss during node failover",
+      "status": "open",
+      "priority": "critical",
+      "reporter_id": "dev_05",
+      "assignee_id": "dev_05",
+      "milestone_id": "ms_02",
+      "estimated_hours": 48,
+      "created_at": "2026-08-10T09:00:00Z",
+      "updated_at": "2026-08-18T09:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_15",
+      "title": "Chaos Engineering Test Suite",
+      "description": "Automated network partition and disk fault injection scripts",
+      "status": "open",
+      "priority": "medium",
+      "reporter_id": "dev_05",
+      "assignee_id": "dev_05",
+      "milestone_id": "ms_03",
+      "estimated_hours": 35,
+      "created_at": "2026-08-11T10:00:00Z",
+      "updated_at": "2026-08-15T12:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_16",
+      "title": "Automated Helm Staging Deployment",
+      "description": "CI/CD pipeline script for staging cluster deployment rollout",
+      "status": "in_progress",
+      "priority": "high",
+      "reporter_id": "dev_06",
+      "assignee_id": "dev_06",
+      "milestone_id": "ms_02",
+      "estimated_hours": 25,
+      "created_at": "2026-08-12T09:00:00Z",
+      "updated_at": "2026-08-18T16:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_17",
+      "title": "Query Optimizer Rule Engine",
+      "description": "Cost-based query rewrite engine for multi-hop graph joins",
+      "status": "open",
+      "priority": "high",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_03",
+      "estimated_hours": 50,
+      "created_at": "2026-08-13T10:00:00Z",
+      "updated_at": "2026-08-17T11:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_18",
+      "title": "Load & Latency Benchmark Suite",
+      "description": "K6 load generator suite testing 100k events/sec throughput target",
+      "status": "open",
+      "priority": "medium",
+      "reporter_id": "dev_05",
+      "assignee_id": "dev_05",
+      "milestone_id": "ms_03",
+      "estimated_hours": 30,
+      "created_at": "2026-08-14T09:00:00Z",
+      "updated_at": "2026-08-16T15:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_19",
+      "title": "TLS & Role-Based Access Control",
+      "description": "mTLS inter-node authentication and fine-grained user permissions",
+      "status": "open",
+      "priority": "high",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_03",
+      "estimated_hours": 40,
+      "created_at": "2026-08-15T11:00:00Z",
+      "updated_at": "2026-08-18T14:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "issue_20",
+      "title": "Disaster Recovery & Backup Automation",
+      "description": "Snapshot backup agent with AWS S3 cold storage sync",
+      "status": "open",
+      "priority": "low",
+      "reporter_id": "dev_01",
+      "assignee_id": "dev_01",
+      "milestone_id": "ms_03",
+      "estimated_hours": 25,
+      "created_at": "2026-08-16T10:00:00Z",
+      "updated_at": "2026-08-17T09:00:00Z",
+      "closed_at": null
+    }
+  ],
+  "pull_requests": [
+    {
+      "id": "pr_01",
+      "title": "feat: WAL storage format implementation",
+      "description": "Adds binary serializer and disk write buffer for WAL entries",
+      "status": "merged",
+      "author_id": "dev_01",
+      "reviewers": ["dev_02", "dev_03"],
+      "linked_issues": ["issue_01"],
+      "created_at": "2026-07-12T09:00:00Z",
+      "updated_at": "2026-07-15T15:30:00Z",
+      "merged_at": "2026-07-15T15:30:00Z",
+      "closed_at": "2026-07-15T15:30:00Z"
+    },
+    {
+      "id": "pr_02",
+      "title": "feat: RocksDB index wrapper & CGO bindings",
+      "description": "Implements key-value storage adapter for graph nodes",
+      "status": "merged",
+      "author_id": "dev_02",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_02"],
+      "created_at": "2026-07-20T10:00:00Z",
+      "updated_at": "2026-07-25T14:00:00Z",
+      "merged_at": "2026-07-25T14:00:00Z",
+      "closed_at": "2026-07-25T14:00:00Z"
+    },
+    {
+      "id": "pr_03",
+      "title": "feat: In-memory LRU caching buffer pool",
+      "description": "High performance concurrent cache for node lookups",
+      "status": "merged",
+      "author_id": "dev_03",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_03"],
+      "created_at": "2026-07-25T11:00:00Z",
+      "updated_at": "2026-07-28T17:30:00Z",
+      "merged_at": "2026-07-28T17:30:00Z",
+      "closed_at": "2026-07-28T17:30:00Z"
+    },
+    {
+      "id": "pr_04",
+      "title": "refactor: Legacy REST V1 endpoint adapter",
+      "description": "Wraps old endpoint responses into internal graph types",
+      "status": "open",
+      "author_id": "dev_03",
+      "reviewers": ["dev_04"],
+      "linked_issues": ["issue_04"],
+      "created_at": "2026-08-01T09:30:00Z",
+      "updated_at": "2026-08-10T10:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_05",
+      "title": "feat: Raft consensus core module",
+      "description": "Leader election logic, append entries RPC, and state machine",
+      "status": "open",
+      "author_id": "dev_01",
+      "reviewers": ["dev_02", "dev_06"],
+      "linked_issues": ["issue_05"],
+      "created_at": "2026-08-05T14:00:00Z",
+      "updated_at": "2026-08-18T16:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_06",
+      "title": "feat: Cluster heartbeat & gossip Protocol",
+      "description": "Gossip protocol implementation with member list integration",
+      "status": "merged",
+      "author_id": "dev_06",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_06"],
+      "created_at": "2026-08-08T10:00:00Z",
+      "updated_at": "2026-08-14T10:30:00Z",
+      "merged_at": "2026-08-14T10:30:00Z",
+      "closed_at": "2026-08-14T10:30:00Z"
+    },
+    {
+      "id": "pr_07",
+      "title": "refactor: DB schema v2 drop legacy tables",
+      "description": "Removes events_v1 table and migrates FK indices",
+      "status": "open",
+      "author_id": "dev_02",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_09"],
+      "created_at": "2026-08-10T11:00:00Z",
+      "updated_at": "2026-08-16T14:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_08",
+      "title": "feat: gRPC streaming telemetry service",
+      "description": "Exposes real-time event throughput over HTTP/2 gRPC streams",
+      "status": "merged",
+      "author_id": "dev_04",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_07"],
+      "created_at": "2026-08-11T09:00:00Z",
+      "updated_at": "2026-08-15T13:30:00Z",
+      "merged_at": "2026-08-15T13:30:00Z",
+      "closed_at": "2026-08-15T13:30:00Z"
+    },
+    {
+      "id": "pr_09",
+      "title": "ops: Prometheus metrics scraper & Helm charts",
+      "description": "Deploys monitoring daemonsets and Grafana dashboard specs",
+      "status": "open",
+      "author_id": "dev_06",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_08"],
+      "created_at": "2026-08-12T14:00:00Z",
+      "updated_at": "2026-08-17T09:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_10",
+      "title": "feat: Native GraphQL Resolver & Router Protocol Engine",
+      "description": "Replaces REST API dependencies with direct GraphQL execution tree",
+      "status": "merged",
+      "author_id": "dev_04",
+      "reviewers": ["dev_03"],
+      "linked_issues": ["issue_10"],
+      "created_at": "2026-08-12T16:00:00Z",
+      "updated_at": "2026-08-15T16:30:00Z",
+      "merged_at": "2026-08-15T16:30:00Z",
+      "closed_at": "2026-08-15T16:30:00Z"
+    },
+    {
+      "id": "pr_11",
+      "title": "feat: Distributed Lock Manager & Concurrency Control",
+      "description": "Implements read/write leases, lock renewal, and deadlock detection",
+      "status": "open",
+      "author_id": "dev_01",
+      "reviewers": ["dev_02", "dev_05"],
+      "linked_issues": ["issue_11"],
+      "created_at": "2026-08-13T10:00:00Z",
+      "updated_at": "2026-08-19T11:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_12",
+      "title": "feat: Web Visualizer Graph Query Node Renderer",
+      "description": "Canvas-based query execution tree graph visualization UI",
+      "status": "open",
+      "author_id": "dev_03",
+      "reviewers": ["dev_01", "dev_04"],
+      "linked_issues": ["issue_12"],
+      "created_at": "2026-08-14T11:00:00Z",
+      "updated_at": "2026-08-18T10:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_13",
+      "title": "ops: Helm staging deployment pipeline script",
+      "description": "Automates Helm upgrade and rollback on staging Kubernetes cluster",
+      "status": "open",
+      "author_id": "dev_06",
+      "reviewers": ["dev_05"],
+      "linked_issues": ["issue_16"],
+      "created_at": "2026-08-15T09:00:00Z",
+      "updated_at": "2026-08-18T15:30:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_14",
+      "title": "feat: Event partition dynamic rebalancing",
+      "description": "Consistent hashing ring adjustment for active stream partitions",
+      "status": "open",
+      "author_id": "dev_01",
+      "reviewers": ["dev_02"],
+      "linked_issues": ["issue_13"],
+      "created_at": "2026-08-16T09:00:00Z",
+      "updated_at": "2026-08-19T14:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "id": "pr_15",
+      "title": "test: E2E Failover Validation Suite",
+      "description": "Cypress and Go integration test suite for cluster failover validation",
+      "status": "open",
+      "author_id": "dev_05",
+      "reviewers": ["dev_01"],
+      "linked_issues": ["issue_14"],
+      "created_at": "2026-08-17T10:00:00Z",
+      "updated_at": "2026-08-18T09:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    }
+  ],
+  "commits": [
+    {
+      "id": "commit_01",
+      "hash": "a1b2c01",
+      "message": "docs: initialize core repository structure",
+      "author_id": "dev_01",
+      "pr_id": null,
+      "timestamp": "2026-07-01T09:30:00Z"
+    },
+    {
+      "id": "commit_02",
+      "hash": "a1b2c02",
+      "message": "feat(wal): add basic binary header structure",
+      "author_id": "dev_01",
+      "pr_id": "pr_01",
+      "timestamp": "2026-07-12T10:15:00Z"
+    },
+    {
+      "id": "commit_03",
+      "hash": "a1b2c03",
+      "message": "feat(wal): implement ring buffer disk flush",
+      "author_id": "dev_01",
+      "pr_id": "pr_01",
+      "timestamp": "2026-07-13T14:20:00Z"
+    },
+    {
+      "id": "commit_04",
+      "hash": "a1b2c04",
+      "message": "test(wal): unit tests for corruption recovery",
+      "author_id": "dev_01",
+      "pr_id": "pr_01",
+      "timestamp": "2026-07-14T11:00:00Z"
+    },
+    {
+      "id": "commit_05",
+      "hash": "a1b2c05",
+      "message": "merge: pull request #1 WAL storage format",
+      "author_id": "dev_01",
+      "pr_id": "pr_01",
+      "timestamp": "2026-07-15T15:30:00Z"
+    },
+    {
+      "id": "commit_06",
+      "hash": "a1b2c06",
+      "message": "feat(storage): setup CGO wrappers for RocksDB",
+      "author_id": "dev_02",
+      "pr_id": "pr_02",
+      "timestamp": "2026-07-21T09:00:00Z"
+    },
+    {
+      "id": "commit_07",
+      "hash": "a1b2c07",
+      "message": "feat(storage): graph node serialization format",
+      "author_id": "dev_02",
+      "pr_id": "pr_02",
+      "timestamp": "2026-07-23T16:45:00Z"
+    },
+    {
+      "id": "commit_08",
+      "hash": "a1b2c08",
+      "message": "merge: pull request #2 RocksDB storage wrapper",
+      "author_id": "dev_01",
+      "pr_id": "pr_02",
+      "timestamp": "2026-07-25T14:00:00Z"
+    },
+    {
+      "id": "commit_09",
+      "hash": "a1b2c09",
+      "message": "feat(cache): LRU cache pool implementation",
+      "author_id": "dev_03",
+      "pr_id": "pr_03",
+      "timestamp": "2026-07-26T10:00:00Z"
+    },
+    {
+      "id": "commit_10",
+      "hash": "a1b2c10",
+      "message": "test(cache): concurrent read write benchmarks",
+      "author_id": "dev_03",
+      "pr_id": "pr_03",
+      "timestamp": "2026-07-27T15:10:00Z"
+    },
+    {
+      "id": "commit_11",
+      "hash": "a1b2c11",
+      "message": "merge: pull request #3 LRU cache buffer pool",
+      "author_id": "dev_01",
+      "pr_id": "pr_03",
+      "timestamp": "2026-07-28T17:30:00Z"
+    },
+    {
+      "id": "commit_12",
+      "hash": "a1b2c12",
+      "message": "refactor(api): setup legacy REST v1 adapter handlers",
+      "author_id": "dev_03",
+      "pr_id": "pr_04",
+      "timestamp": "2026-08-01T10:00:00Z"
+    },
+    {
+      "id": "commit_13",
+      "hash": "a1b2c13",
+      "message": "feat(raft): RPC message definitions and state machine stub",
+      "author_id": "dev_01",
+      "pr_id": "pr_05",
+      "timestamp": "2026-08-06T11:00:00Z"
+    },
+    {
+      "id": "commit_14",
+      "hash": "a1b2c14",
+      "message": "feat(raft): leader election timer and heartbeat handling",
+      "author_id": "dev_01",
+      "pr_id": "pr_05",
+      "timestamp": "2026-08-11T14:30:00Z"
+    },
+    {
+      "id": "commit_15",
+      "hash": "a1b2c15",
+      "message": "feat(raft): log compaction and snapshotting interface",
+      "author_id": "dev_01",
+      "pr_id": "pr_05",
+      "timestamp": "2026-08-17T09:15:00Z"
+    },
+    {
+      "id": "commit_16",
+      "hash": "a1b2c16",
+      "message": "feat(gossip): SWIM protocol UDP member ping",
+      "author_id": "dev_06",
+      "pr_id": "pr_06",
+      "timestamp": "2026-08-09T09:30:00Z"
+    },
+    {
+      "id": "commit_17",
+      "hash": "a1b2c17",
+      "message": "feat(gossip): join and leave event propagation",
+      "author_id": "dev_06",
+      "pr_id": "pr_06",
+      "timestamp": "2026-08-12T13:00:00Z"
+    },
+    {
+      "id": "commit_18",
+      "hash": "a1b2c18",
+      "message": "merge: pull request #6 Cluster heartbeat gossip",
+      "author_id": "dev_01",
+      "pr_id": "pr_06",
+      "timestamp": "2026-08-14T10:30:00Z"
+    },
+    {
+      "id": "commit_19",
+      "hash": "a1b2c19",
+      "message": "refactor(schema): drop events_v1 table migration",
+      "author_id": "dev_02",
+      "pr_id": "pr_07",
+      "timestamp": "2026-08-11T12:00:00Z"
+    },
+    {
+      "id": "commit_20",
+      "hash": "a1b2c20",
+      "message": "feat(grpc): stream telemetry handler implementation",
+      "author_id": "dev_04",
+      "pr_id": "pr_08",
+      "timestamp": "2026-08-12T10:00:00Z"
+    },
+    {
+      "id": "commit_21",
+      "hash": "a1b2c21",
+      "message": "merge: pull request #8 gRPC telemetry service",
+      "author_id": "dev_01",
+      "pr_id": "pr_08",
+      "timestamp": "2026-08-15T13:30:00Z"
+    },
+    {
+      "id": "commit_22",
+      "hash": "a1b2c22",
+      "message": "feat(graphql): native GraphQL resolver engine & remove REST dependency",
+      "author_id": "dev_04",
+      "pr_id": "pr_10",
+      "timestamp": "2026-08-15T16:30:00Z"
+    },
+    {
+      "id": "commit_23",
+      "hash": "a1b2c23",
+      "message": "ops(prometheus): scraper config and metric exporters",
+      "author_id": "dev_06",
+      "pr_id": "pr_09",
+      "timestamp": "2026-08-13T11:00:00Z"
+    },
+    {
+      "id": "commit_24",
+      "hash": "a1b2c24",
+      "message": "feat(lock): initial read/write lock manager implementation",
+      "author_id": "dev_01",
+      "pr_id": "pr_11",
+      "timestamp": "2026-08-14T09:00:00Z"
+    },
+    {
+      "id": "commit_25",
+      "hash": "a1b2c25",
+      "message": "feat(lock): add lease renewal heartbeat and deadlock detector",
+      "author_id": "dev_01",
+      "pr_id": "pr_11",
+      "timestamp": "2026-08-16T14:20:00Z"
+    },
+    {
+      "id": "commit_26",
+      "hash": "a1b2c26",
+      "message": "refactor(lock): overhaul mutex isolation after edge case review feedback",
+      "author_id": "dev_01",
+      "pr_id": "pr_11",
+      "timestamp": "2026-08-19T10:45:00Z"
+    },
+    {
+      "id": "commit_27",
+      "hash": "a1b2c27",
+      "message": "feat(ui): tree graph renderer canvas component",
+      "author_id": "dev_03",
+      "pr_id": "pr_12",
+      "timestamp": "2026-08-15T14:00:00Z"
+    },
+    {
+      "id": "commit_28",
+      "hash": "a1b2c28",
+      "message": "feat(ui): query payload inspector modal",
+      "author_id": "dev_03",
+      "pr_id": "pr_12",
+      "timestamp": "2026-08-17T16:30:00Z"
+    },
+    {
+      "id": "commit_29",
+      "hash": "a1b2c29",
+      "message": "ops(helm): staging values YAML and rollout template",
+      "author_id": "dev_06",
+      "pr_id": "pr_13",
+      "timestamp": "2026-08-16T09:30:00Z"
+    },
+    {
+      "id": "commit_30",
+      "hash": "a1b2c30",
+      "message": "feat(rebalance): consistent hash ring virtual node assignment",
+      "author_id": "dev_01",
+      "pr_id": "pr_14",
+      "timestamp": "2026-08-17T11:00:00Z"
+    },
+    {
+      "id": "commit_31",
+      "hash": "a1b2c31",
+      "message": "feat(rebalance): partition transfer protocol and handoff stream",
+      "author_id": "dev_01",
+      "pr_id": "pr_14",
+      "timestamp": "2026-08-19T13:15:00Z"
+    },
+    {
+      "id": "commit_32",
+      "hash": "a1b2c32",
+      "message": "test(e2e): setup cluster topology mock harness",
+      "author_id": "dev_05",
+      "pr_id": "pr_15",
+      "timestamp": "2026-08-17T15:00:00Z"
+    },
+    {
+      "id": "commit_33",
+      "hash": "a1b2c33",
+      "message": "test(e2e): failover assertion during leader termination",
+      "author_id": "dev_05",
+      "pr_id": "pr_15",
+      "timestamp": "2026-08-18T08:45:00Z"
+    },
+    {
+      "id": "commit_34",
+      "hash": "a1b2c34",
+      "message": "docs: document stream buffer configuration parameters",
+      "author_id": "dev_03",
+      "pr_id": null,
+      "timestamp": "2026-08-16T12:00:00Z"
+    },
+    {
+      "id": "commit_35",
+      "hash": "a1b2c35",
+      "message": "fix(gossip): resolve race condition in UDP socket buffer pool",
+      "author_id": "dev_06",
+      "pr_id": null,
+      "timestamp": "2026-08-16T16:00:00Z"
+    },
+    {
+      "id": "commit_36",
+      "hash": "a1b2c36",
+      "message": "chore: bump dependencies to Go 1.22",
+      "author_id": "dev_02",
+      "pr_id": null,
+      "timestamp": "2026-08-17T08:30:00Z"
+    },
+    {
+      "id": "commit_37",
+      "hash": "a1b2c37",
+      "message": "test: add mock load test cases for stream aggregation",
+      "author_id": "dev_05",
+      "pr_id": null,
+      "timestamp": "2026-08-17T14:00:00Z"
+    },
+    {
+      "id": "commit_38",
+      "hash": "a1b2c38",
+      "message": "docs: update API client setup quickstart",
+      "author_id": "dev_04",
+      "pr_id": null,
+      "timestamp": "2026-08-18T11:20:00Z"
+    },
+    {
+      "id": "commit_39",
+      "hash": "a1b2c39",
+      "message": "fix(log): standardize JSON log trace fields across services",
+      "author_id": "dev_01",
+      "pr_id": null,
+      "timestamp": "2026-08-18T17:00:00Z"
+    },
+    {
+      "id": "commit_40",
+      "hash": "a1b2c40",
+      "message": "ops: add staging healthcheck probe script",
+      "author_id": "dev_06",
+      "pr_id": null,
+      "timestamp": "2026-08-19T09:00:00Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev_01",
+      "pr_id": "pr_01",
+      "reviewer_id": "dev_02",
+      "status": "approved",
+      "comment": "LGTM! Storage format is clean and byte alignment matches spec.",
+      "submitted_at": "2026-07-14T16:00:00Z"
+    },
+    {
+      "id": "rev_02",
+      "pr_id": "pr_01",
+      "reviewer_id": "dev_03",
+      "status": "approved",
+      "comment": "Verified ring buffer flush behavior with mock stress test.",
+      "submitted_at": "2026-07-15T11:20:00Z"
+    },
+    {
+      "id": "rev_03",
+      "pr_id": "pr_02",
+      "reviewer_id": "dev_01",
+      "status": "approved",
+      "comment": "CGO allocations look safe. Memory leak checks passed.",
+      "submitted_at": "2026-07-25T11:00:00Z"
+    },
+    {
+      "id": "rev_04",
+      "pr_id": "pr_03",
+      "reviewer_id": "dev_01",
+      "status": "approved",
+      "comment": "Concurrent map access is clean. Good work on cache invalidation.",
+      "submitted_at": "2026-07-28T14:00:00Z"
+    },
+    {
+      "id": "rev_05",
+      "pr_id": "pr_04",
+      "reviewer_id": "dev_04",
+      "status": "commented",
+      "comment": "Note: GraphQL migration PR #10 will eliminate the need for this adapter soon.",
+      "submitted_at": "2026-08-05T10:00:00Z"
+    },
+    {
+      "id": "rev_06",
+      "pr_id": "pr_05",
+      "reviewer_id": "dev_02",
+      "status": "commented",
+      "comment": "Raft log index persistence needs double check under power failure.",
+      "submitted_at": "2026-08-12T11:30:00Z"
+    },
+    {
+      "id": "rev_07",
+      "pr_id": "pr_05",
+      "reviewer_id": "dev_06",
+      "status": "commented",
+      "comment": "Heartbeat interval tuning required for high latency cross-AZ links.",
+      "submitted_at": "2026-08-15T15:00:00Z"
+    },
+    {
+      "id": "rev_08",
+      "pr_id": "pr_06",
+      "reviewer_id": "dev_01",
+      "status": "approved",
+      "comment": "Gossip protocol joins look rock solid. Approved.",
+      "submitted_at": "2026-08-13T17:00:00Z"
+    },
+    {
+      "id": "rev_09",
+      "pr_id": "pr_07",
+      "reviewer_id": "dev_01",
+      "status": "changes_requested",
+      "comment": "Dropping events_v1 directly breaks backward compatibility for unmigrated clients. Please add compatibility view fallback.",
+      "submitted_at": "2026-08-16T14:00:00Z"
+    },
+    {
+      "id": "rev_10",
+      "pr_id": "pr_08",
+      "reviewer_id": "dev_01",
+      "status": "approved",
+      "comment": "gRPC streaming specs approved.",
+      "submitted_at": "2026-08-14T16:00:00Z"
+    },
+    {
+      "id": "rev_11",
+      "pr_id": "pr_09",
+      "reviewer_id": "dev_01",
+      "status": "commented",
+      "comment": "Please update Prometheus scrape interval to 5s for staging.",
+      "submitted_at": "2026-08-15T10:00:00Z"
+    },
+    {
+      "id": "rev_12",
+      "pr_id": "pr_10",
+      "reviewer_id": "dev_03",
+      "status": "approved",
+      "comment": "GraphQL resolvers tested against core storage backend. Works great!",
+      "submitted_at": "2026-08-15T15:00:00Z"
+    },
+    {
+      "id": "rev_13",
+      "pr_id": "pr_11",
+      "reviewer_id": "dev_02",
+      "status": "changes_requested",
+      "comment": "Edge case discovered in lease renewal timeout during network partition. Requesting structural refactor.",
+      "submitted_at": "2026-08-18T11:00:00Z"
+    },
+    {
+      "id": "rev_14",
+      "pr_id": "pr_11",
+      "reviewer_id": "dev_05",
+      "status": "commented",
+      "comment": "Integration tests blocked until lock manager handles partition failover cleanly.",
+      "submitted_at": "2026-08-18T14:30:00Z"
+    },
+    {
+      "id": "rev_15",
+      "pr_id": "pr_12",
+      "reviewer_id": "dev_04",
+      "status": "approved",
+      "comment": "UI looks sleek. Fits query builder specs.",
+      "submitted_at": "2026-08-17T17:00:00Z"
+    },
+    {
+      "id": "rev_16",
+      "pr_id": "pr_13",
+      "reviewer_id": "dev_05",
+      "status": "commented",
+      "comment": "Deployment script needs validation against staging cluster ingress rules.",
+      "submitted_at": "2026-08-17T11:00:00Z"
+    },
+    {
+      "id": "rev_17",
+      "pr_id": "pr_14",
+      "reviewer_id": "dev_02",
+      "status": "commented",
+      "comment": "Reviewing dynamic rebalancing math for partition key distribution.",
+      "submitted_at": "2026-08-18T16:00:00Z"
+    },
+    {
+      "id": "rev_18",
+      "pr_id": "pr_15",
+      "reviewer_id": "dev_01",
+      "status": "commented",
+      "comment": "Test harness pending resolution of PR #11 lock manager fixes.",
+      "submitted_at": "2026-08-18T09:00:00Z"
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "dep_rel_01",
+      "source_id": "issue_01",
+      "target_id": "issue_02",
+      "type": "blocks",
+      "description": "WAL storage design blocks RocksDB integration"
+    },
+    {
+      "id": "dep_rel_02",
+      "source_id": "issue_02",
+      "target_id": "issue_03",
+      "type": "blocks",
+      "description": "RocksDB backend blocks in-memory caching"
+    },
+    {
+      "id": "dep_rel_03",
+      "source_id": "pr_01",
+      "target_id": "issue_01",
+      "type": "implements",
+      "description": "PR #1 implements Issue #1"
+    },
+    {
+      "id": "dep_rel_04",
+      "source_id": "pr_02",
+      "target_id": "issue_02",
+      "type": "implements",
+      "description": "PR #2 implements Issue #2"
+    },
+    {
+      "id": "dep_rel_05",
+      "source_id": "pr_03",
+      "target_id": "issue_03",
+      "type": "implements",
+      "description": "PR #3 implements Issue #3"
+    },
+    {
+      "id": "dep_rel_06",
+      "source_id": "pr_05",
+      "target_id": "issue_05",
+      "type": "implements",
+      "description": "PR #5 implements Issue #5"
+    },
+    {
+      "id": "dep_rel_07",
+      "source_id": "pr_06",
+      "target_id": "issue_06",
+      "type": "implements",
+      "description": "PR #6 implements Issue #6"
+    },
+    {
+      "id": "dep_rel_08",
+      "source_id": "pr_07",
+      "target_id": "issue_09",
+      "type": "implements",
+      "description": "PR #7 implements Issue #9 DB Schema Migration"
+    },
+    {
+      "id": "dep_rel_09",
+      "source_id": "pr_08",
+      "target_id": "issue_07",
+      "type": "implements",
+      "description": "PR #8 implements Issue #7 gRPC telemetry"
+    },
+    {
+      "id": "dep_rel_10",
+      "source_id": "pr_10",
+      "target_id": "issue_10",
+      "type": "implements",
+      "description": "PR #10 implements Issue #10 GraphQL Migration"
+    },
+    {
+      "id": "dep_rel_11",
+      "source_id": "pr_11",
+      "target_id": "issue_11",
+      "type": "implements",
+      "description": "PR #11 implements Issue #11 Distributed Lock Manager"
+    },
+    {
+      "id": "dep_rel_12",
+      "source_id": "issue_11",
+      "target_id": "issue_14",
+      "type": "blocks",
+      "description": "Concurrency Lock Manager blocks E2E failover testing"
+    },
+    {
+      "id": "dep_rel_13",
+      "source_id": "issue_14",
+      "target_id": "dep_01",
+      "type": "blocks",
+      "description": "E2E Stream Aggregation testing blocks Staging Cluster deployment"
+    },
+    {
+      "id": "dep_rel_14",
+      "source_id": "dep_01",
+      "target_id": "dl_03",
+      "type": "blocks",
+      "description": "Staging Cluster deployment blocks Client Executive Demo deadline"
+    },
+    {
+      "id": "dep_rel_15",
+      "source_id": "issue_09",
+      "target_id": "dep_02",
+      "type": "blocks",
+      "description": "DB Schema Migration script execution blocks Production DB Upgrade"
+    },
+    {
+      "id": "dep_rel_16",
+      "source_id": "pr_07",
+      "target_id": "dep_02",
+      "type": "blocks",
+      "description": "PR #7 Schema Migration blocks Production DB Upgrade deployment"
+    },
+    {
+      "id": "dep_rel_17",
+      "source_id": "issue_04",
+      "target_id": "issue_10",
+      "type": "historical_dependency",
+      "description": "REST V1 compatibility was historically listed as precursor to GraphQL Gateway"
+    },
+    {
+      "id": "dep_rel_18",
+      "source_id": "pr_13",
+      "target_id": "issue_16",
+      "type": "implements",
+      "description": "PR #13 implements Issue #16 Helm staging pipeline"
+    },
+    {
+      "id": "dep_rel_19",
+      "source_id": "pr_14",
+      "target_id": "issue_13",
+      "type": "implements",
+      "description": "PR #14 implements Issue #13 Partition rebalancing"
+    },
+    {
+      "id": "dep_rel_20",
+      "source_id": "pr_15",
+      "target_id": "issue_14",
+      "type": "implements",
+      "description": "PR #15 implements Issue #14 E2E failover validation suite"
+    },
+    {
+      "id": "dep_rel_21",
+      "source_id": "issue_05",
+      "target_id": "issue_11",
+      "type": "blocks",
+      "description": "Raft Consensus core engine blocks Distributed Lock Manager"
+    },
+    {
+      "id": "dep_rel_22",
+      "source_id": "issue_06",
+      "target_id": "issue_05",
+      "type": "blocks",
+      "description": "Gossip protocol blocks Raft cluster discovery"
+    }
+  ],
+  "deployments": [
+    {
+      "id": "dep_01",
+      "title": "Staging Cluster v1.0-beta Rollout",
+      "target_environment": "staging",
+      "scheduled_at": "2026-08-26T10:00:00Z",
+      "executed_at": null,
+      "status": "scheduled",
+      "related_issues": ["issue_11", "issue_14", "issue_16"],
+      "related_prs": ["pr_11", "pr_13", "pr_15"]
+    },
+    {
+      "id": "dep_02",
+      "title": "Production DB Engine Upgrade & Schema Migration",
+      "target_environment": "production",
+      "scheduled_at": "2026-08-28T02:00:00Z",
+      "executed_at": null,
+      "status": "scheduled",
+      "related_issues": ["issue_09"],
+      "related_prs": ["pr_07"]
+    },
+    {
+      "id": "dep_03",
+      "title": "Monitoring Stack Staging Deployment",
+      "target_environment": "staging",
+      "scheduled_at": "2026-08-16T08:00:00Z",
+      "executed_at": "2026-08-16T08:30:00Z",
+      "status": "success",
+      "related_issues": ["issue_08"],
+      "related_prs": ["pr_09"]
+    },
+    {
+      "id": "dep_04",
+      "title": "v1.0-rc Client Demo Release Build",
+      "target_environment": "production",
+      "scheduled_at": "2026-09-04T08:00:00Z",
+      "executed_at": null,
+      "status": "pending",
+      "related_issues": ["issue_14", "issue_17", "issue_19"],
+      "related_prs": ["pr_11", "pr_14", "pr_15"]
+    }
+  ]
+}

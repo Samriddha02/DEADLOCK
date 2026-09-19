@@ -1,0 +1,59 @@
+{
+  "scenario_name": "Developer Bottleneck — Contention on Alex Chen",
+  "description": "Raw developer workload assignments, PR authorship, and code review allocation metrics across team members.",
+  "project_id": "proj_nexus_01",
+  "target_developer": "dev_01",
+  "scenario_evidence_ids": [
+    "dev_01",
+    "issue_01",
+    "issue_05",
+    "issue_11",
+    "issue_13",
+    "issue_17",
+    "issue_19",
+    "issue_20",
+    "pr_01",
+    "pr_05",
+    "pr_11",
+    "pr_14",
+    "pr_03",
+    "pr_06",
+    "pr_08",
+    "pr_09",
+    "pr_12",
+    "pr_15"
+  ],
+  "raw_context": {
+    "developer": {
+      "id": "dev_01",
+      "name": "Alex Chen",
+      "role": "Principal Backend Architect"
+    },
+    "assigned_open_issues": [
+      "issue_05",
+      "issue_11",
+      "issue_13",
+      "issue_17",
+      "issue_19",
+      "issue_20"
+    ],
+    "authored_active_prs": [
+      "pr_05",
+      "pr_11",
+      "pr_14"
+    ],
+    "assigned_pr_reviews": [
+      "pr_03",
+      "pr_06",
+      "pr_08",
+      "pr_09",
+      "pr_12",
+      "pr_15"
+    ],
+    "aggregate_metrics": {
+      "total_open_estimated_hours": 270,
+      "pending_reviews_count": 4,
+      "sprint_capacity_hours": 80
+    }
+  }
+}
