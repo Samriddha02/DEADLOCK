@@ -1,0 +1,132 @@
+{
+  "project_id": "proj_nexus_01",
+  "version": "1.0-beta",
+  "generated_at": "2026-08-19T21:38:00Z",
+  "hidden_risks": [
+    {
+      "risk_id": "RISK-01-DEADLINE-SLIPPAGE",
+      "title": "Critical Path Delay in Distributed Lock Manager Threatening Client Executive Demo",
+      "severity": "CRITICAL",
+      "root_cause": "PR #11 (Distributed Lock Manager) assigned to dev_01 is delayed by review refactoring (rev_13, rev_14). This directly blocks Issue #11, which blocks Issue #14 (E2E Failover Validation), which in turn blocks Staging Deployment (dep_01), pushing completion past the Client Executive Demo deadline (dl_03 on 2026-09-04 12:00:00Z).",
+      "evidence_ids": [
+        "pr_11",
+        "rev_13",
+        "rev_14",
+        "issue_11",
+        "issue_14",
+        "dep_01",
+        "dl_03",
+        "dep_rel_11",
+        "dep_rel_12",
+        "dep_rel_13",
+        "dep_rel_14"
+      ],
+      "dependency_chain": [
+        "pr_11",
+        "issue_11",
+        "issue_14",
+        "dep_01",
+        "dl_03"
+      ],
+      "affected_items": [
+        "issue_11",
+        "issue_14",
+        "dep_01",
+        "dl_03",
+        "ms_03"
+      ],
+      "expected_impact": "Staging cluster rollout and end-to-end validation will slip by 3-4 days beyond the scheduled window, leaving less than 24 hours for live testing before the executive client demo.",
+      "recommended_action": "Prioritize code review resolution on PR #11, assign dev_02 to assist dev_01 with lock lease edge cases, and run pre-validation testing using mock lock managers."
+    },
+    {
+      "risk_id": "RISK-02-DEV-BOTTLENECK",
+      "title": "Single Point of Failure and High Workload Contention on Architect Alex Chen (dev_01)",
+      "severity": "HIGH",
+      "root_cause": "dev_01 (Alex Chen) is assigned 7 open issues, authored 4 active PRs, and is designated sole reviewer for 6 PRs across the team. Total assigned workload exceeds available capacity by 280%, creating a major bottleneck for critical path reviews and PR merges.",
+      "evidence_ids": [
+        "dev_01",
+        "issue_01",
+        "issue_05",
+        "issue_11",
+        "issue_13",
+        "issue_17",
+        "issue_19",
+        "issue_20",
+        "pr_01",
+        "pr_05",
+        "pr_11",
+        "pr_14",
+        "pr_03",
+        "pr_06",
+        "pr_08",
+        "pr_09",
+        "pr_12",
+        "pr_15"
+      ],
+      "dependency_chain": [
+        "dev_01",
+        "pr_11",
+        "pr_05",
+        "pr_14",
+        "issue_11",
+        "issue_05",
+        "issue_13"
+      ],
+      "affected_items": [
+        "ms_02",
+        "ms_03",
+        "issue_11",
+        "issue_05",
+        "issue_13",
+        "issue_17",
+        "issue_19",
+        "issue_20"
+      ],
+      "expected_impact": "Team review latency increases exponentially; pull requests sit open for multiple days awaiting dev_01 approval; critical milestones ms_02 and ms_03 experience secondary cumulative delays.",
+      "recommended_action": "Reassign PR review responsibilities (pr_09, pr_12) to dev_04 and dev_02; reassign Issue #19 (TLS/RBAC) to dev_06; pair dev_02 with dev_01 on Raft consensus implementation."
+    },
+    {
+      "risk_id": "RISK-03-DEPLOYMENT-HAZARD",
+      "title": "Unresolved DB Schema Breaking Change in PR #7 Threatening Scheduled Production DB Upgrade",
+      "severity": "HIGH",
+      "root_cause": "Deployment dep_02 (Production DB Engine Upgrade) is scheduled for 2026-08-28. It relies on Issue #9 and PR #7 (Schema Migration Tooling v2). PR #7 drops the events_v1 table directly without backward compatibility and has unaddressed changes_requested status (rev_09) since 2026-08-16.",
+      "evidence_ids": [
+        "dep_02",
+        "issue_09",
+        "pr_07",
+        "rev_09",
+        "dev_02",
+        "dep_rel_08",
+        "dep_rel_15",
+        "dep_rel_16"
+      ],
+      "dependency_chain": [
+        "pr_07",
+        "rev_09",
+        "issue_09",
+        "dep_02"
+      ],
+      "affected_items": [
+        "dep_02",
+        "issue_09",
+        "pr_07"
+      ],
+      "expected_impact": "Executing dep_02 with unmerged or flawed migration scripts will cause database schema corruption or runtime breakdown for downstream query services.",
+      "recommended_action": "Hold deployment dep_02 until PR #7 addresses rev_09 feedback by introducing a dual-read SQL compatibility view, or delay dep_02 until post-v1.0-beta rollout."
+    }
+  ],
+  "false_positive": {
+    "suspected_risk": "FP-01-STALE-PR-BLOCKER",
+    "title": "Stale Open PR #4 (Legacy REST V1 Adapter) Suspected of Blocking GraphQL Gateway Migration",
+    "why_it_looks_dangerous": "PR #4 (Legacy REST V1 Adapter) has been open for 18 days with 5 merge conflicts, and Issue #4 was historically recorded as a dependency (dep_rel_17) for Issue #10 (GraphQL API Gateway Migration). An automated scanner might flag PR #4 as a stale blocker for GraphQL migration.",
+    "why_it_is_safe": "PR #10 (GraphQL Native Resolver Engine) was already completed and merged into main on 2026-08-15 via commit_22. Commit_22 removed all legacy REST v1 invocation points in router.go, completely decoupling Issue #10 from Issue #4. PR #4 is an unmerged tech-debt item and does not block any release path.",
+    "evidence_ids_safe": [
+      "pr_04",
+      "issue_04",
+      "issue_10",
+      "pr_10",
+      "commit_22",
+      "dep_rel_17"
+    ]
+  }
+}
