@@ -12,7 +12,7 @@ Modern software engineering projects comprise thousands of interconnected compon
 
 Most AI developer tools focus on code generation ("*What code should I write?*"). **DEADLOCK focuses on project-level failure propagation and dependency intelligence ("*If this component changes or fails, what else is affected downstream, and what is the exact evidence?*").**
 
-![DEADLOCK Project Workspace Dashboard](assets/WhatsApp%20Image%202026-09-19%20at%2015.18.54.jpeg)
+![DEADLOCK Project Workspace Dashboard](./assets/dashboard.jpeg)
 
 ```
 ┌────────────────────┐     ┌────────────────────────┐     ┌───────────────────────┐
@@ -73,7 +73,7 @@ DEADLOCK establishes a deterministic, evidence-backed pipeline that transforms r
 
 ## How DEADLOCK Works
 
-![DEADLOCK Dependency Graph Topology](assets/WhatsApp%20Image%202026-09-19%20at%2015.21.52.jpeg)
+![DEADLOCK Dependency Graph Topology](./assets/dependency-graph.jpeg)
 
 ```
                         ┌──────────────────────────────┐
@@ -128,7 +128,7 @@ DEADLOCK establishes a deterministic, evidence-backed pipeline that transforms r
 
 ## Evidence-First Intelligence
 
-![DEADLOCK Evidence-First Risk Detail & Provenance Inspector](assets/WhatsApp%20Image%202026-09-19%20at%2015.20.56.jpeg)
+![DEADLOCK Evidence-First Risk Detail & Provenance Inspector](./assets/risk-analysis.jpeg)
 
 A core design principle of DEADLOCK is **zero tolerance for synthetic hallucinations in project state**:
 
@@ -185,7 +185,7 @@ When a reviewer requests changes on `PR #142` or unit tests fail in `jwt_verifie
 
 DEADLOCK allows engineering organizations to inspect multi-service architectures across independent repositories:
 
-![DEADLOCK Combined Workspace & Cross-Repository Analysis](assets/WhatsApp%20Image%202026-09-19%20at%2015.20.01.jpeg)
+![DEADLOCK Combined Workspace & Cross-Repository Analysis](./assets/combined-workspace.jpeg)
 
 ```
 ┌─────────────────────────────────┐       ┌─────────────────────────────────┐
@@ -220,7 +220,7 @@ Cross-repository edges are created **only** when evidence is verified via:
 
 The What-If Engine allows tech leads and release managers to test hypothetical risks safely:
 
-![DEADLOCK What-If Failure Propagation Studio](assets/WhatsApp%20Image%202026-09-19%20at%2015.22.43.jpeg)
+![DEADLOCK What-If Failure Propagation Studio](./assets/what-if-simulation.jpeg)
 
 ```
 Simulation Request:
