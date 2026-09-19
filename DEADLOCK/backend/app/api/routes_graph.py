@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from app.api.routes_risks import load_seeded_dataset
 from app.database.repositories import (
     ProjectCorruptError,
     ProjectNotFoundError,
-    is_demo_repo,
     load_project,
 )
 from app.graph.graph_builder import build_graph
@@ -39,36 +37,29 @@ def get_graph(
     repo = repo.strip()
 
     dataset = None
-    source = "data/seeded_project.json"
+    source = "SQLite database"
 
-    if is_demo_repo(owner, repo):
-        try:
-            dataset = load_seeded_dataset()
-            source = "data/seeded_project.json"
-        except Exception as exc:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to load seeded dataset: {exc}",
-            ) from exc
-    else:
-        try:
-            dataset = load_project(owner, repo)
-            source = "SQLite database"
-        except ProjectNotFoundError:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Project '{owner}/{repo}' has not been synced yet.",
-            )
-        except ProjectCorruptError as exc:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Stored project data for '{owner}/{repo}' is corrupt: {exc}",
-            ) from exc
-        except Exception as exc:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to load project: {exc}",
-            ) from exc
+    # is_demo_repo only applies when the request comes from an explicit demo endpoint.
+    # In the standard graph endpoint we always load from SQLite so live and demo repos
+    # are treated identically — if the data isn't synced the caller gets a 404.
+    try:
+        dataset = load_project(owner, repo)
+        source = "SQLite database"
+    except ProjectNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project '{owner}/{repo}' has not been synced yet.",
+        )
+    except ProjectCorruptError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Stored project data for '{owner}/{repo}' is corrupt: {exc}",
+        ) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to load project: {exc}",
+        ) from exc
 
     try:
         graph = build_graph(dataset)
@@ -125,4 +116,4 @@ def get_graph(
         "total_edges": len(edges),
         "nodes": nodes,
         "edges": edges,
-    }
+    }

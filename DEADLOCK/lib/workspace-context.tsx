@@ -39,7 +39,7 @@ interface WorkspaceContextType {
 
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
-const STORAGE_KEY_METRICS = "deadlock_repo_metrics_v3";
+const STORAGE_KEY_METRICS = "deadlock_repo_metrics_v4";  // bumped: clears stale v3 zero-risk cache
 const STORAGE_KEY_ACTIVE  = "deadlock_active_repo_id_v3";
 
 type RepoMetricsCache = Record<string, {
@@ -118,8 +118,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       if (savedActive && repos.some((r) => r.id === savedActive)) setActiveRepoIdState(savedActive);
       else if (repos.length > 0) setActiveRepoIdState(repos[0].id);
       else setActiveRepoIdState(null);
+      // Always re-fetch risk/graph counts for every READY live repo on load
+      // so repository cards show current backend data, not stale cache.
       repos.forEach(async (repo) => {
-        if (repo.status === "READY" && repo.nodeCount == null) {
+        if (repo.status === "READY" && repo.source !== "seeded") {
           const enriched = await enrichRepoMetrics(repo);
           setRepositories((prev) => prev.map((r) => (r.id === repo.id ? enriched : r)));
         }
